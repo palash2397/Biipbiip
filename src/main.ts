@@ -53,7 +53,7 @@ async function bootstrap() {
     .setTitle(SWAGGER.TITLE)
     .setDescription(SWAGGER.DESCRIPTION)
     .setVersion(SWAGGER.VERSION)
-    // .addServer(SWAGGER.SERVER_URL)
+    .addServer(process.env.BASE_URL || SWAGGER.SERVER_URL || '/')
     .addBearerAuth(
       {
         type: 'http',
