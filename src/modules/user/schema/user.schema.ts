@@ -22,6 +22,12 @@ export class User {
 
   @Prop({
     type: String,
+    trim: true,
+  })
+  countryCode: string;
+
+  @Prop({
+    type: String,
     required: true,
     unique: true,
     index: true,
