@@ -32,6 +32,10 @@ export class UserService {
         return new ApiResponse(400, {}, Msg.USER_NOT_FOUND);
       }
 
+      user.avatar = user.avatar
+        ? `${process.env.BASE_URL}/uploads/profile/${user.avatar}`
+        : process.env.DEFAULT_IMAGE;
+
       return new ApiResponse(200, user, Msg.USER_FETCHED);
     } catch (error) {
       console.log('error while getting my profile', error);
@@ -72,7 +76,7 @@ export class UserService {
         await updatedUser.save();
       }
 
-      return new ApiResponse(200, user, Msg.USER_UPDATED);
+      return new ApiResponse(200, {}, Msg.USER_UPDATED);
     } catch (error) {
       console.log('error while updating profile', error);
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);

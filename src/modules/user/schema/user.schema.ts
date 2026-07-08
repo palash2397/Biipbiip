@@ -69,7 +69,7 @@ export class User {
     type: Date,
     default: null,
   })
-  DOB?: Date;
+  dob?: Date;
 
   @Prop({
     type: Boolean,

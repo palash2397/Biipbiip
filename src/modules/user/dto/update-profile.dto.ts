@@ -18,7 +18,13 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsString()
   @MaxLength(100)
-  DOB?: string;
+  dob?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  email?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
