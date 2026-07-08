@@ -59,7 +59,7 @@ export const Msg = {
   USERNAME_EXISTS: `Username already exists`,
 
   // OTP
-  OTP_SENT: `The OTP has been successfully sent to your registered email. Please check your inbox.`,
+  OTP_SENT: `The OTP has been successfully sent to your phone number. Please check your inbox.`,
   OTP_VERIFIED: `OTP verified successfully`,
   OTP_NOT_VERIFIED: `OTP not verified. Please verify OTP.`,
   OTP_EXPIRED: `OTP has expired`,

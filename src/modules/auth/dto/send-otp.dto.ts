@@ -4,10 +4,10 @@ import { ApiProperty } from '@nestjs/swagger';
 import { UserRole } from 'src/common/enums/user/role.enum';
 
 export class SendOtpDto {
-  @ApiProperty({ enum: UserRole, isArray: true })
+  @ApiProperty({ enum: UserRole, example: UserRole.ADMIN })
   @IsNotEmpty()
-  @IsEnum(UserRole, { each: true, message: 'Invalid role provided' })
-  roles: UserRole[];
+  @IsEnum(UserRole, { message: 'Invalid role provided' })
+  roles: UserRole;
 
   @ApiProperty()
   @IsNotEmpty()

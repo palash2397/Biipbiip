@@ -34,7 +34,7 @@ export class AuthService {
         const user = await this.userModel.create({
           countryCode: dto.countryCode,
           phoneNumber: dto.phoneNumber,
-          roles: dto.roles || [],
+          roles: dto.roles ? [dto.roles] : [],
           otp,
           otpExpireAt,
           isVerified: false,
@@ -57,7 +57,7 @@ export class AuthService {
           },
 
           $addToSet: {
-            roles: { $each: dto.roles || [] },
+            roles: dto.roles,
           },
         },
         {
@@ -65,7 +65,7 @@ export class AuthService {
         },
       );
 
-      return new ApiResponse(200, user, Msg.OTP_SENT);
+      return new ApiResponse(200, {}, Msg.OTP_SENT);
     } catch (error) {
       console.log('error while sending otp', error);
 
