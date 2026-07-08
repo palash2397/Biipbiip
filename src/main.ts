@@ -20,7 +20,7 @@ async function bootstrap() {
 
   // Serve uploaded files statically
   app.useStaticAssets(join(__dirname, '..', 'uploads'), {
-    prefix: '/uploads',
+    prefix: `${Global.PREFIX}/uploads`,
   });
 
   // enable global validation for DTOs

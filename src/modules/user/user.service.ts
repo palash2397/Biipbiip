@@ -33,7 +33,7 @@ export class UserService {
       }
 
       user.avatar = user.avatar
-        ? `${process.env.BASE_URL}/uploads/profile/${user.avatar}`
+        ? `${process.env.BASE_URL}/api/v1/uploads/profile/${user.avatar}`
         : process.env.DEFAULT_IMAGE;
 
       return new ApiResponse(200, user, Msg.USER_FETCHED);
