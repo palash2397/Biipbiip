@@ -50,6 +50,18 @@ export class User {
   isVerified: boolean;
 
   @Prop({
+    type: String,
+    default: '',
+  })
+  otp?: string;
+
+  @Prop({
+    type: Date,
+    default: '',
+  })
+  otpExpireAt?: Date;
+
+  @Prop({
     type: Boolean,
     default: false,
   })
