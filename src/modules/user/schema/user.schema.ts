@@ -66,10 +66,10 @@ export class User {
   gender?: string;
 
   @Prop({
-    type: Date,
+    type: String,
     default: null,
   })
-  dob?: Date;
+  dob?: string;
 
   @Prop({
     type: Boolean,
