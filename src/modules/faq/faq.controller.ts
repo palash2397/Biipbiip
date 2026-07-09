@@ -27,7 +27,7 @@ export class FaqController {
   constructor(private readonly faqService: FaqService) {}
 
   @Post('/add')
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.SUPERADMIN)
   createFaq(@Body() dto: CreateFaqDto) {
     return this.faqService.createFaq(dto);
   }
@@ -39,13 +39,13 @@ export class FaqController {
   }
 
   @Patch('/:id')
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.SUPERADMIN)
   updateFaq(@Param('id') id: string, @Body() dto: UpdateFaqDto) {
     return this.faqService.updateFaq(id, dto);
   }
 
   @Delete('/:id')
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.SUPERADMIN)
   deleteFaq(@Param('id') id: string) {
     return this.faqService.deleteFaq(id);
   }
