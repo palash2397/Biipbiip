@@ -73,4 +73,10 @@ export const Msg = {
   ADDRESS_UPDATED: 'Address updated successfully',
   ADDRESS_DELETED: 'Address deleted successfully',
   ADDRESS_NOT_FOUND: 'Address not found',
+
+  FAQ_CREATED: 'FAQ created successfully',
+  FAQ_FETCHED: 'FAQs fetched successfully',
+  FAQ_UPDATED: 'FAQ updated successfully',
+  FAQ_DELETED: 'FAQ deleted successfully',
+  FAQ_NOT_FOUND: 'FAQ not found',
 };
