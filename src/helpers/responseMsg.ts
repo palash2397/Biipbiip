@@ -79,4 +79,9 @@ export const Msg = {
   FAQ_UPDATED: 'FAQ updated successfully',
   FAQ_DELETED: 'FAQ deleted successfully',
   FAQ_NOT_FOUND: 'FAQ not found',
+
+  SUPPORT_CREATED: 'Support request submitted successfully',
+  SUPPORT_FETCHED: 'Support requests fetched successfully',
+  SUPPORT_UPDATED: 'Support request updated successfully',
+  SUPPORT_NOT_FOUND: 'Support request not found',
 };
