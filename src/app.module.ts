@@ -7,6 +7,7 @@ import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { AddressModule } from './modules/address/address.module';
 import { RideTypeModule } from './modules/ride-type/ride-type.module';
+import { FaqModule } from './modules/faq/faq.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { RideTypeModule } from './modules/ride-type/ride-type.module';
     AuthModule,
     AddressModule,
     RideTypeModule,
+    FaqModule,
   ],
   controllers: [AppController],
   providers: [],
