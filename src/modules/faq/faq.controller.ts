@@ -33,7 +33,7 @@ export class FaqController {
   }
 
   @Get('/')
-  @Roles(UserRole.PASSENGER)
+  @Roles(UserRole.PASSENGER, UserRole.DRIVER, UserRole.SUPERADMIN)
   getFaqs() {
     return this.faqService.getFaqs();
   }
