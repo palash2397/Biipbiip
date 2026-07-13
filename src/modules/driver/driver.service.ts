@@ -125,6 +125,11 @@ export class DriverService {
 
   async updateDocuments(userId: string, files?: any) {
     try {
+      const user = await this.userModel.findOne({ _id: userId });
+      if (!user) {
+        return new ApiResponse(404, {}, Msg.USER_NOT_FOUND);
+      }
+
       const driver = await this.driverModel.findOne({ user: userId });
 
       const updatedDriver = await this.driverModel.findOneAndUpdate(
@@ -237,6 +242,9 @@ export class DriverService {
           (photo) => `${baseUrl}/api/v1/uploads/driver/${photo}`,
         );
       }
+
+      user.isProfileCompleted = true;
+      await user.save();
 
       return new ApiResponse(200, updatedDriver, Msg.DRIVER_UPDATED);
     } catch (error) {
