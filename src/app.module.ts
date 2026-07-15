@@ -11,6 +11,7 @@ import { FaqModule } from './modules/faq/faq.module';
 import { SupportModule } from './modules/support/support.module';
 import { DriverModule } from './modules/driver/driver.module';
 import { SocketModule } from './modules/socket/socket.module';
+import { RideModule } from './modules/ride/ride.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { SocketModule } from './modules/socket/socket.module';
     SupportModule,
     DriverModule,
     SocketModule,
+    RideModule,
   ],
   controllers: [AppController],
   providers: [],
