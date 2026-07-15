@@ -9,13 +9,19 @@ export class RideType {
   title: string;
 
   @Prop({ type: Number, required: true })
-  price: number;
+  baseFare: number;
+
+  @Prop({ type: Number, required: true })
+  perKmCharge: number;
+
+  @Prop({ type: Number, required: true })
+  perMinuteCharge: number;
+
+  @Prop({ type: Number, required: true })
+  minimumFare: number;
 
   @Prop({ type: Number, required: true })
   seats: number;
-
-  @Prop({ type: String, required: true, trim: true })
-  estimatedTime: string;
 
   @Prop({ type: String, default: null })
   image?: string;

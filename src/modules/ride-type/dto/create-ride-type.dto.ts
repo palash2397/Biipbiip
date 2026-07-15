@@ -4,28 +4,34 @@ import { Type } from 'class-transformer';
 
 export class CreateRideTypeDto {
   @ApiProperty()
-  @IsNotEmpty()
   @IsString()
+  @IsNotEmpty()
   title: string;
 
   @ApiProperty()
-  @IsNotEmpty()
-  @Type(() => Number)
   @IsNumber()
-  price: number;
+  baseFare: number;
 
   @ApiProperty()
-  @IsNotEmpty()
-  @Type(() => Number)
+  @IsNumber()
+  perKmCharge: number;
+
+  @ApiProperty()
+  @IsNumber()
+  perMinuteCharge: number;
+
+  @ApiProperty()
+  @IsNumber()
+  minimumFare: number;
+
+  @ApiProperty()
   @IsNumber()
   seats: number;
 
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  estimatedTime: string;
-
-  @ApiPropertyOptional({ type: 'string', format: 'binary' })
+  @ApiPropertyOptional({
+    type: 'string',
+    format: 'binary',
+  })
   @IsOptional()
   image?: any;
 }
