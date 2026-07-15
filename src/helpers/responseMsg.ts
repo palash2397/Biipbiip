@@ -94,4 +94,8 @@ export const Msg = {
   RIDE_TYPE_UPDATED: 'Ride type updated successfully',
   RIDE_TYPE_DELETED: 'Ride type deleted successfully',
   RIDE_TYPE_NOT_FOUND: 'Ride type not found',
+
+  ROUTE_NOT_FOUND: 'Route not found',
+
+  FARE_ESTIMATED: 'Fare estimated successfully',
 };

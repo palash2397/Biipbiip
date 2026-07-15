@@ -16,6 +16,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { RideTypeService } from './ride-type.service';
 import { CreateRideTypeDto } from './dto/create-ride-type.dto';
 import { UpdateRideTypeDto } from './dto/update-ride-type.dto';
+import { EstimateFareDto } from './dto/estimate-fare.dto';
 
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { RoleGuard } from '../auth/roles/roles.guard';
@@ -63,5 +64,10 @@ export class RideTypeController {
   @Roles(UserRole.SUPERADMIN, UserRole.PASSENGER)
   deleteRideType(@Param('id') id: string) {
     return this.rideTypeService.deleteRideType(id);
+  }
+
+  @Post('/estimateFare')
+  estimateFare(@Body() dto: EstimateFareDto) {
+    return this.rideTypeService.estimateFare(dto);
   }
 }
