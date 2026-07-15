@@ -58,6 +58,22 @@ export class Driver {
   })
   verificationStatus: VerificationStatus;
 
+  @Prop({
+    type: {
+      type: String,
+      enum: ['Point'],
+      default: 'Point',
+    },
+    coordinates: {
+      type: [Number],
+      default: [0, 0],
+    },
+  })
+  currentLocation: {
+    type: string;
+    coordinates: number[];
+  };
+
   @Prop({ type: Boolean, default: false })
   isOnline: boolean;
 }

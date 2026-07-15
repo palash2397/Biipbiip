@@ -67,6 +67,7 @@ export class RideTypeController {
   }
 
   @Post('/estimateFare')
+  @Roles(UserRole.SUPERADMIN, UserRole.PASSENGER)
   estimateFare(@Body() dto: EstimateFareDto) {
     return this.rideTypeService.estimateFare(dto);
   }
