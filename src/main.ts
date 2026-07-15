@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
@@ -43,7 +44,7 @@ async function bootstrap() {
   });
 
   // // WebSocket Adapter
-  // app.useWebSocketAdapter(new IoAdapter(app));
+  app.useWebSocketAdapter(new IoAdapter(app));
 
   // Global Prefix
   app.setGlobalPrefix(Global.PREFIX);
