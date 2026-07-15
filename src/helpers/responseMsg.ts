@@ -68,37 +68,48 @@ export const Msg = {
   OTP_LIMIT_EXCEEDED: `OTP request limit exceeded, please try again later`,
   OTP_NOT_FOUND: `OTP not found. Please request a new OTP.`,
 
+  // Address
   ADDRESS_CREATED: 'Address created successfully',
   ADDRESS_FETCHED: 'Addresses fetched successfully',
   ADDRESS_UPDATED: 'Address updated successfully',
   ADDRESS_DELETED: 'Address deleted successfully',
   ADDRESS_NOT_FOUND: 'Address not found',
 
+  // Faq
   FAQ_CREATED: 'FAQ created successfully',
   FAQ_FETCHED: 'FAQs fetched successfully',
   FAQ_UPDATED: 'FAQ updated successfully',
   FAQ_DELETED: 'FAQ deleted successfully',
   FAQ_NOT_FOUND: 'FAQ not found',
 
+  // Support
   SUPPORT_CREATED: 'Support request submitted successfully',
   SUPPORT_FETCHED: 'Support requests fetched successfully',
   SUPPORT_UPDATED: 'Support request updated successfully',
   SUPPORT_NOT_FOUND: 'Support request not found',
 
+  // Driver
   DRIVER_UPDATED: 'Driver details updated successfully',
   DRIVER_FETCHED: 'Driver details fetched successfully',
   DRIVER_STATUS_UPDATED: 'Driver status updated successfully',
   DRIVER_NOT_ONLINE: 'Driver is not online',
 
+  // Ride type
   RIDE_TYPE_CREATED: 'Ride type created successfully',
   RIDE_TYPE_FETCHED: 'Ride types fetched successfully',
   RIDE_TYPE_UPDATED: 'Ride type updated successfully',
   RIDE_TYPE_DELETED: 'Ride type deleted successfully',
   RIDE_TYPE_NOT_FOUND: 'Ride type not found',
 
+  // Route
   ROUTE_NOT_FOUND: 'Route not found',
+  ROUTE_CREATED: 'Route created successfully',
+  ROUTE_UPDATED: 'Route updated successfully',
+  ROUTE_DELETED: 'Route deleted successfully',
 
+  // Fare
   FARE_ESTIMATED: 'Fare estimated successfully',
+  FARE_NOT_FOUND: 'Fare not found',
 
   // Location
   LOCATION_UPDATED: 'Location updated successfully',
@@ -106,4 +117,12 @@ export const Msg = {
   LOCATION_NOT_FOUND: 'Location not found',
   LOCATION_DELETED: 'Location deleted successfully',
   LOCATION_CREATED: 'Location created successfully',
+
+  // Ride
+  RIDE_BOOKED: 'Ride booked successfully',
+  RIDE_FETCHED: 'Ride fetched successfully',
+  RIDE_UPDATED: 'Ride updated successfully',
+  RIDE_DELETED: 'Ride deleted successfully',
+  RIDE_NOT_FOUND: 'Ride not found',
+  ACTIVE_RIDE_EXISTS: 'You already have an active ride',
 };

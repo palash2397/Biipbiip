@@ -31,60 +31,31 @@ export class Ride {
   })
   rideType: Types.ObjectId;
 
-  @Prop({
-    type: String,
-    required: true,
-    trim: true,
-  })
+  @Prop({ type: String, required: true, trim: true })
   pickupAddress: string;
 
-  @Prop({
-    type: Number,
-    required: true,
-  })
+  @Prop({ type: Number, required: true })
   pickupLatitude: number;
 
-  @Prop({
-    type: Number,
-    required: true,
-  })
+  @Prop({ type: Number, required: true })
   pickupLongitude: number;
 
-  @Prop({
-    type: String,
-    required: true,
-    trim: true,
-  })
+  @Prop({ type: String, required: true, trim: true })
   destinationAddress: string;
 
-  @Prop({
-    type: Number,
-    required: true,
-  })
+  @Prop({ type: Number, required: true })
   destinationLatitude: number;
 
-  @Prop({
-    type: Number,
-    required: true,
-  })
+  @Prop({ type: Number, required: true })
   destinationLongitude: number;
 
-  @Prop({
-    type: Number,
-    required: true,
-  })
+  @Prop({ type: Number, required: true })
   distance: number;
 
-  @Prop({
-    type: Number,
-    required: true,
-  })
+  @Prop({ type: Number, required: true })
   estimatedTime: number;
 
-  @Prop({
-    type: Number,
-    required: true,
-  })
+  @Prop({ type: Number, required: true })
   estimatedFare: number;
 
   @Prop({
