@@ -67,11 +67,11 @@ export class Ride {
   })
   status: RideStatus;
 
-  // @Prop({
-  //   type: [{ type: Types.ObjectId, ref: Driver.name }],
-  //   default: [],
-  // })
-  // rejectedDrivers: Types.ObjectId[];
+  @Prop({
+    type: [{ type: Types.ObjectId, ref: Driver.name }],
+    default: [],
+  })
+  rejectedDrivers: Types.ObjectId[];
 
   @Prop({
     type: String,

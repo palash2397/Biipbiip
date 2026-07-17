@@ -30,4 +30,10 @@ export class RideController {
   acceptRide(@Req() req: any, @Body() dto: AcceptRideDto) {
     return this.rideService.acceptRide(req.user.id, dto);
   }
+
+  //   @Post('/cancelRide')
+  // @Roles(UserRole.DRIVER, UserRole.SUPERADMIN)
+  // cancelRide(@Req() req: any, @Body() dto:) {
+  //   return this.rideService.acceptRide(req.user.id, dto);
+  // }
 }
