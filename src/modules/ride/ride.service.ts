@@ -312,6 +312,8 @@ export class RideService {
       /**
        * USER CANCELLED
        */
+
+      console.log('USER CANCELLED', ride.user._id.toString(), userId);
       if (ride.user._id.toString() === userId) {
         ride.status = RideStatus.CANCELLED;
         ride.cancelledBy = UserRole.USER;
@@ -325,12 +327,34 @@ export class RideService {
             'passengerCancelledRide',
             ride,
           );
+
+          console.log('Ride Driver:', ride.driver);
         } else {
-          this.socketService.emitToRide(
-            ride._id.toString(),
-            'rideCancelled',
-            ride,
-          );
+          const nearbyDrivers = await this.driverModel
+            .find({
+              isOnline: true,
+              // verificationStatus: VerificationStatus.APPROVED,
+              currentLocation: {
+                $near: {
+                  $geometry: {
+                    type: 'Point',
+                    coordinates: [ride.pickupLongitude, ride.pickupLatitude],
+                  },
+                  $maxDistance: 5000,
+                },
+              },
+            })
+            .populate('user');
+
+          for (const nearbyDriver of nearbyDrivers) {
+            if ((nearbyDriver as any).user?._id) {
+              this.socketService.emitToUser(
+                (nearbyDriver as any).user._id.toString(),
+                'rideCancelled',
+                ride,
+              );
+            }
+          }
         }
 
         return new ApiResponse(200, ride, Msg.RIDE_CANCELLED);
@@ -347,6 +371,8 @@ export class RideService {
         ride.driver = null as any;
 
         ride.status = RideStatus.SEARCHING_DRIVER;
+
+        ride.rejectedDrivers.push(driver._id);
 
         await ride.save();
 
