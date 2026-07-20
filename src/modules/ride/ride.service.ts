@@ -458,7 +458,7 @@ export class RideService {
     }
   }
 
-  async findActiveRides(userId: string) {
+  async driverActiveRide(userId: string) {
     try {
       const driver = await this.driverModel.findOne({
         user: userId,
@@ -467,37 +467,25 @@ export class RideService {
         return new ApiResponse(404, {}, Msg.DRIVER_NOT_FOUND);
       }
 
-      const [longitude, latitude] = driver.currentLocation.coordinates;
-
-      const rides = await this.rideModel.find({
-        status: RideStatus.SEARCHING_DRIVER,
-
-        rejectedDrivers: {
-          $ne: driver._id,
-        },
-
-        pickupLocation: {
-          $near: {
-            $geometry: {
-              type: 'Point',
-              coordinates: [longitude, latitude],
-            },
-
-            $maxDistance: 5000,
+      const ride = await this.rideModel
+        .findOne({
+          driver: driver._id,
+          status: {
+            $in: [
+              RideStatus.DRIVER_FOUND,
+              RideStatus.DRIVER_ARRIVING,
+              RideStatus.ONGOING,
+            ],
           },
-        },
-      });
-      console.log('RIDES', rides);
+        })
+        .populate('user')
+        .populate('rideType');
 
-      if (rides.length === 0) {
-        return new ApiResponse(404, {}, Msg.NO_ACTIVE_RIDES_FOUND);
+      if (!ride) {
+        return new ApiResponse(200, null, Msg.NO_ACTIVE_RIDES_FOUND);
       }
 
-      // const activeRides = await this.rideModel.find({
-      //   status: RideStatus.SEARCHING_DRIVER,
-      // });
-
-      return new ApiResponse(200, rides, Msg.RIDES_FETCHED);
+      return new ApiResponse(200, ride, Msg.RIDES_FETCHED);
     } catch (error) {
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }

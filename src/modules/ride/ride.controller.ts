@@ -41,6 +41,6 @@ export class RideController {
   @Get('/activeRides')
   @Roles(UserRole.DRIVER, UserRole.SUPERADMIN)
   activeRides(@Req() req: any) {
-    return this.rideService.findActiveRides(req.user.id);
+    return this.rideService.driverActiveRide(req.user.id);
   }
 }
