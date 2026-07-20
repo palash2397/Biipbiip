@@ -506,30 +506,73 @@ export class RideService {
         return new ApiResponse(404, {}, Msg.USER_NOT_FOUND);
       }
 
-      // const allUserRides = await this.rideModel.find({ user: user._id });
-      // console.log('--- DEBUG: ALL RIDES FOR THIS USER ---');
-      // console.log(allUserRides.map((r) => ({ _id: r._id, status: r.status })));
-      // console.log('----------------------------------------');
-
-      const ride = await this.rideModel.findOne({
-        user: user._id,
-        status: {
-          $in: [
-            RideStatus.SEARCHING_DRIVER,
-            RideStatus.DRIVER_FOUND,
-            RideStatus.DRIVER_ARRIVING,
-            RideStatus.ONGOING,
-          ],
-        },
-      })
-      .populate('user')
-      .populate('driver')
-      .populate('rideType');
+      const ride = await this.rideModel
+        .findOne({
+          user: user._id,
+          status: {
+            $in: [
+              RideStatus.SEARCHING_DRIVER,
+              RideStatus.DRIVER_FOUND,
+              RideStatus.DRIVER_ARRIVING,
+              RideStatus.ONGOING,
+            ],
+          },
+        })
+        .populate('user')
+        .populate({
+          path: 'driver',
+          populate: {
+            path: 'user',
+            select: 'firstName lastName email avatar phoneNumber countryCode',
+          },
+        })
+        .populate('rideType')
+        .lean();
 
       console.log('user active ride', ride);
 
       if (!ride) {
         return new ApiResponse(200, null, Msg.NO_ACTIVE_RIDES_FOUND);
+      }
+
+      const baseUrl = process.env.BASE_URL;
+
+      // Format Passenger Avatar
+      if (ride.user) {
+        const u = ride.user as any;
+        if (u.avatar && !u.avatar.startsWith('http')) {
+          u.avatar = `${baseUrl}/api/v1/uploads/profile/${u.avatar}`;
+        } else if (!u.avatar) {
+          u.avatar = process.env.DEFAULT_IMAGE;
+        }
+      }
+
+      if (ride.driver) {
+        const d = ride.driver as any;
+
+        if (d.user) {
+          d.user.avatar = `${baseUrl}/api/v1/uploads/profile/${d.user.avatar}`;
+        } else {
+          d.user.avatar = process.env.DEFAULT_IMAGE;
+        }
+
+        const formatUrl = (fileName?: string) =>
+          fileName && !fileName.startsWith('http')
+            ? `${baseUrl}/api/v1/uploads/driver/${fileName}`
+            : fileName;
+
+        d.nationalIdFront = formatUrl(d.nationalIdFront);
+        d.nationalIdBack = formatUrl(d.nationalIdBack);
+        d.driverLicenseFront = formatUrl(d.driverLicenseFront);
+        d.driverLicenseBack = formatUrl(d.driverLicenseBack);
+        d.vehicleRegistrationFront = formatUrl(d.vehicleRegistrationFront);
+        d.vehicleRegistrationBack = formatUrl(d.vehicleRegistrationBack);
+
+        if (d.vehiclePhotos && Array.isArray(d.vehiclePhotos)) {
+          d.vehiclePhotos = d.vehiclePhotos.map((photo: string) =>
+            formatUrl(photo),
+          );
+        }
       }
 
       return new ApiResponse(200, ride, Msg.RIDES_FETCHED);
