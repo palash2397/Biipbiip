@@ -59,7 +59,7 @@ export class RideService {
           $in: [
             RideStatus.SEARCHING_DRIVER,
             RideStatus.DRIVER_FOUND,
-            RideStatus.DRIVER_ARRIVING,
+            RideStatus.DRIVER_ARRIVIED,
             RideStatus.ONGOING,
           ],
         },
@@ -477,7 +477,7 @@ export class RideService {
           status: {
             $in: [
               RideStatus.DRIVER_FOUND,
-              RideStatus.DRIVER_ARRIVING,
+              RideStatus.DRIVER_ARRIVIED,
               RideStatus.ONGOING,
             ],
           },
@@ -513,7 +513,7 @@ export class RideService {
             $in: [
               RideStatus.SEARCHING_DRIVER,
               RideStatus.DRIVER_FOUND,
-              RideStatus.DRIVER_ARRIVING,
+              RideStatus.DRIVER_ARRIVIED,
               RideStatus.ONGOING,
             ],
           },
@@ -655,6 +655,14 @@ export class RideService {
       return new ApiResponse(200, formattedRides, Msg.RIDES_FETCHED);
     } catch (error) {
       console.log(`error while fetching user ride history`, error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
+
+  async driverArrived(userId: string, rideId: string) {
+    try {
+    } catch (error) {
+      console.log(`error while driver arrived`, error);
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }

@@ -315,11 +315,15 @@ export class DriverService {
         status: {
           $in: [
             RideStatus.DRIVER_FOUND,
-            RideStatus.DRIVER_ARRIVING,
+            RideStatus.DRIVER_ARRIVIED,
             RideStatus.ONGOING,
           ],
         },
       });
+
+      console.log('Ride User:', ride?.user.toString());
+      console.log('Driver User:', userId);
+      console.log('Ride Id:', ride?._id);
 
       if (ride) {
         this.socketService.emitToUser(
