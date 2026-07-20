@@ -537,12 +537,11 @@ export class RideService {
 
       const baseUrl = process.env.BASE_URL;
 
-      // Format Passenger Avatar
       if (ride.user) {
         const u = ride.user as any;
-        if (u.avatar && !u.avatar.startsWith('http')) {
+        if (u.avatar) {
           u.avatar = `${baseUrl}/api/v1/uploads/profile/${u.avatar}`;
-        } else if (!u.avatar) {
+        } else {
           u.avatar = process.env.DEFAULT_IMAGE;
         }
       }
@@ -598,14 +597,62 @@ export class RideService {
           },
         })
         .populate('user')
-        .populate('driver')
-        .populate('rideType');
+        .populate({
+          path: 'driver',
+          populate: {
+            path: 'user',
+            select: 'firstName lastName email avatar phoneNumber countryCode',
+          },
+        })
+        .populate('rideType')
+        .lean();
 
       if (!rides || rides.length === 0) {
         return new ApiResponse(200, [], Msg.RIDES_NOT_FOUND);
       }
 
-      return new ApiResponse(200, rides, Msg.RIDES_FETCHED);
+      const baseUrl = process.env.BASE_URL;
+
+      const formattedRides = rides.map((ride: any) => {
+        const u = ride.user as any;
+        if (ride.user) {
+          u.avatar = `${baseUrl}/api/v1/uploads/profile/${u.avatar}`;
+        } else {
+          u.avatar = process.env.DEFAULT_IMAGE;
+        }
+
+        if (ride.driver) {
+          const d = ride.driver as any;
+
+          if (d.user) {
+            d.user.avatar = `${baseUrl}/api/v1/uploads/profile/${d.user.avatar}`;
+          } else {
+            d.user.avatar = process.env.DEFAULT_IMAGE;
+          }
+
+          const formatUrl = (fileName?: string) =>
+            fileName && !fileName.startsWith('http')
+              ? `${baseUrl}/api/v1/uploads/driver/${fileName}`
+              : fileName;
+
+          d.nationalIdFront = formatUrl(d.nationalIdFront);
+          d.nationalIdBack = formatUrl(d.nationalIdBack);
+          d.driverLicenseFront = formatUrl(d.driverLicenseFront);
+          d.driverLicenseBack = formatUrl(d.driverLicenseBack);
+          d.vehicleRegistrationFront = formatUrl(d.vehicleRegistrationFront);
+          d.vehicleRegistrationBack = formatUrl(d.vehicleRegistrationBack);
+
+          if (d.vehiclePhotos && Array.isArray(d.vehiclePhotos)) {
+            d.vehiclePhotos = d.vehiclePhotos.map((photo: string) =>
+              formatUrl(photo),
+            );
+          }
+        }
+
+        return ride;
+      });
+
+      return new ApiResponse(200, formattedRides, Msg.RIDES_FETCHED);
     } catch (error) {
       console.log(`error while fetching user ride history`, error);
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
