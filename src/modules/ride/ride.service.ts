@@ -457,4 +457,49 @@ export class RideService {
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }
+
+  async findActiveRides(userId: string) {
+    try {
+      const driver = await this.driverModel.findOne({
+        user: userId,
+      });
+      if (!driver) {
+        return new ApiResponse(404, {}, Msg.DRIVER_NOT_FOUND);
+      }
+
+      const [longitude, latitude] = driver.currentLocation.coordinates;
+
+      const rides = await this.rideModel.find({
+        status: RideStatus.SEARCHING_DRIVER,
+
+        rejectedDrivers: {
+          $ne: driver._id,
+        },
+
+        pickupLocation: {
+          $near: {
+            $geometry: {
+              type: 'Point',
+              coordinates: [longitude, latitude],
+            },
+
+            $maxDistance: 5000,
+          },
+        },
+      });
+      console.log('RIDES', rides);
+
+      if (rides.length === 0) {
+        return new ApiResponse(404, {}, Msg.NO_ACTIVE_RIDES_FOUND);
+      }
+
+      // const activeRides = await this.rideModel.find({
+      //   status: RideStatus.SEARCHING_DRIVER,
+      // });
+
+      return new ApiResponse(200, rides, Msg.RIDES_FETCHED);
+    } catch (error) {
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
 }

@@ -94,6 +94,7 @@ export const Msg = {
   DRIVER_STATUS_UPDATED: 'Driver status updated successfully',
   DRIVER_NOT_ONLINE: 'Driver is not online',
   DRIVER_NOT_AVAILABLE: 'Driver is not available',
+  DRIVER_NOT_FOUND: 'Driver not found',
 
   // Ride type
   RIDE_TYPE_CREATED: 'Ride type created successfully',
@@ -122,6 +123,7 @@ export const Msg = {
   // Ride
   RIDE_BOOKED: 'Ride booked successfully',
   RIDE_FETCHED: 'Ride fetched successfully',
+  RIDES_FETCHED: 'Rides fetched successfully',
   RIDE_UPDATED: 'Ride updated successfully',
   RIDE_DELETED: 'Ride deleted successfully',
   RIDE_ALREADY_ACCEPTED: 'Ride already accepted',
@@ -131,4 +133,6 @@ export const Msg = {
   RIDE_ALREADY_COMPLETED: 'Ride already completed',
   RIDE_NOT_FOUND: 'Ride not found',
   ACTIVE_RIDE_EXISTS: 'You already have an active ride',
+  NO_ACTIVE_RIDES_FOUND: 'No active rides found',
+  NO_RIDES_FOUND_NEARBY: 'No rides found nearby',
 };
