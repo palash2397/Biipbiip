@@ -694,7 +694,7 @@ export class RideService {
             return new ApiResponse(
               400,
               {},
-              'Driver can only arrive after accepting the ride.',
+              Msg.DRIVER_CAN_ONLY_ARRIVE_AFTER_ACCEPTING_THE_RIDE,
             );
           }
 
@@ -706,7 +706,7 @@ export class RideService {
             return new ApiResponse(
               400,
               {},
-              'Ride can only start after driver arrives.',
+              Msg.RIDE_CAN_ONLY_START_AFTER_DRIVER_ARRIVES,
             );
           }
 
@@ -718,7 +718,7 @@ export class RideService {
             return new ApiResponse(
               400,
               {},
-              'Ride must be ongoing before requesting payment.',
+              Msg.RIDE_MUST_BE_ONGOING_BEFORE_REQUESTING_PAYMENT,
             );
           }
 
@@ -730,14 +730,16 @@ export class RideService {
             return new ApiResponse(
               400,
               {},
-              'Ride completion is handled after successful payment.',
+              Msg.RIDE_COMPLETION_HANDLED_AFTER_SUCCESSFUL_PAYMENT,
             );
           }
 
           socketEvent = 'paymentCompleted';
 
+          break;
+
         default:
-          return new ApiResponse(400, {}, 'Invalid ride status.');
+          return new ApiResponse(400, {}, Msg.INVALID_RIDE_STATUS);
       }
 
       ride.status = dto.status;

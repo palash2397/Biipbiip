@@ -138,4 +138,13 @@ export const Msg = {
   NO_RIDES_FOUND_NEARBY: 'No rides found nearby',
   RIDE_STATUS_UPDATED_SUCCESSFULLY: 'Ride status updated successfully.',
   RIDE_NOT_ASSIGNED_TO_DRIVER: 'Ride is not assigned to this driver.',
+  DRIVER_CAN_ONLY_ARRIVE_AFTER_ACCEPTING_THE_RIDE:
+    'Driver can only arrive after accepting the ride.',
+  RIDE_CAN_ONLY_START_AFTER_DRIVER_ARRIVES:
+    'Ride can only start after driver arrives.',
+  RIDE_MUST_BE_ONGOING_BEFORE_REQUESTING_PAYMENT:
+    'Ride must be ongoing before requesting payment.',
+  RIDE_COMPLETION_HANDLED_AFTER_SUCCESSFUL_PAYMENT:
+    'Ride completion is handled after successful payment.',
+  INVALID_RIDE_STATUS: 'Invalid ride status.',
 };
