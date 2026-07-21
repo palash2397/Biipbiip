@@ -5,7 +5,7 @@ import { RideStatus } from 'src/common/enums/ride/ride-enum';
 export class UpdateRideStatusDto {
   @ApiProperty({
     enum: [
-      RideStatus.DRIVER_ARRIVIED,
+      RideStatus.DRIVER_ARRIVED,
       RideStatus.ONGOING,
       RideStatus.PAYMENT_PENDING,
       RideStatus.COMPLETED,

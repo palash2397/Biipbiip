@@ -60,7 +60,7 @@ export class RideService {
           $in: [
             RideStatus.SEARCHING_DRIVER,
             RideStatus.DRIVER_FOUND,
-            RideStatus.DRIVER_ARRIVIED,
+            RideStatus.DRIVER_ARRIVED,
             RideStatus.ONGOING,
           ],
         },
@@ -484,7 +484,7 @@ export class RideService {
           status: {
             $in: [
               RideStatus.DRIVER_FOUND,
-              RideStatus.DRIVER_ARRIVIED,
+              RideStatus.DRIVER_ARRIVED,
               RideStatus.ONGOING,
             ],
           },
@@ -520,7 +520,7 @@ export class RideService {
             $in: [
               RideStatus.SEARCHING_DRIVER,
               RideStatus.DRIVER_FOUND,
-              RideStatus.DRIVER_ARRIVIED,
+              RideStatus.DRIVER_ARRIVED,
               RideStatus.ONGOING,
             ],
           },
@@ -695,7 +695,7 @@ export class RideService {
       let socketEvent = '';
 
       switch (dto.status) {
-        case RideStatus.DRIVER_ARRIVIED:
+        case RideStatus.DRIVER_ARRIVED:
           if (ride.status !== RideStatus.DRIVER_FOUND) {
             return new ApiResponse(
               400,
@@ -708,7 +708,7 @@ export class RideService {
           break;
 
         case RideStatus.ONGOING:
-          if (ride.status !== RideStatus.DRIVER_ARRIVIED) {
+          if (ride.status !== RideStatus.DRIVER_ARRIVED) {
             return new ApiResponse(
               400,
               {},

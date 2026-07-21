@@ -315,7 +315,7 @@ export class DriverService {
         status: {
           $in: [
             RideStatus.DRIVER_FOUND,
-            RideStatus.DRIVER_ARRIVIED,
+            RideStatus.DRIVER_ARRIVED,
             RideStatus.ONGOING,
           ],
         },
