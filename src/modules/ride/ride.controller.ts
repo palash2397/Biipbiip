@@ -7,6 +7,7 @@ import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { RideService } from './ride.service';
 import { BookRideDto } from './dto/book-ride.dto';
 import { AcceptRideDto } from './dto/accept-ride.dto';
+import { UpdateRideStatusDto } from './dto/ride-status-dto';
 
 import { RoleGuard } from '../auth/roles/roles.guard';
 import { Roles } from '../auth/roles/roles.decorator';
@@ -54,5 +55,11 @@ export class RideController {
   @Roles(UserRole.PASSENGER, UserRole.USER, UserRole.SUPERADMIN)
   userRideHistory(@Req() req: any) {
     return this.rideService.userRideHistory(req.user.id);
+  }
+
+  @Post('/update-ride-status')
+  @Roles(UserRole.DRIVER, UserRole.SUPERADMIN)
+  updateRideStatus(@Req() req: any, @Body() dto: UpdateRideStatusDto) {
+    return this.rideService.updateRideStatus(req.user.id, dto);
   }
 }
