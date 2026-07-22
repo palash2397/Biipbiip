@@ -95,6 +95,7 @@ export const Msg = {
   DRIVER_NOT_ONLINE: 'Driver is not online',
   DRIVER_NOT_AVAILABLE: 'Driver is not available',
   DRIVER_NOT_FOUND: 'Driver not found',
+  DRIVER_NOT_ASSIGNED: 'Driver not assigned',
 
   // Ride type
   RIDE_TYPE_CREATED: 'Ride type created successfully',
@@ -147,4 +148,11 @@ export const Msg = {
   RIDE_COMPLETION_HANDLED_AFTER_SUCCESSFUL_PAYMENT:
     'Ride completion is handled after successful payment.',
   INVALID_RIDE_STATUS: 'Invalid ride status.',
+
+  // Chat
+  CHAT_JOINED: 'Chat joined successfully',
+  CHAT_NOT_FOUND: 'Chat not found',
+  CHAT_NOT_AUTHORIZED: 'You are not authorized to join this chat',
+  CHAT_ALREADY_JOINED: 'You are already a member of this chat',
+  CHAT_IS_NOT_AVAILABLE: 'Chat is not available for this ride.',
 };

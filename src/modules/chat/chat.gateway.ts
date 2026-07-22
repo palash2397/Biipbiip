@@ -12,6 +12,7 @@ import { ChatService } from './chat.service';
 import { JoinChatDto } from './dto/join-chat.dto';
 
 @WebSocketGateway({
+  path: '/viamo/socket.io',
   cors: {
     origin: '*',
   },
