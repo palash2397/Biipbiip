@@ -50,7 +50,8 @@ export class ChatService {
       }
 
       const isPassenger = ride.user.toString() === userId;
-      const isDriver = ride.driver && (ride.driver as any).user.toString() === userId;
+      const isDriver =
+        ride.driver && (ride.driver as any).user.toString() === userId;
 
       console.log(`isDriver --->`, isDriver);
       console.log(`isPassenger --->`, isPassenger);
@@ -93,7 +94,8 @@ export class ChatService {
       }
 
       const isPassenger = ride.user.toString() === userId;
-      const isDriver = ride.driver && (ride.driver as any).user.toString() === userId;
+      const isDriver =
+        ride.driver && (ride.driver as any).user.toString() === userId;
 
       if (!isPassenger && !isDriver) {
         return new ApiResponse(401, {}, Msg.UNAUTHORIZED);
@@ -131,6 +133,52 @@ export class ChatService {
       return new ApiResponse(200, chatMessage, Msg.MESSAGE_SENT);
     } catch (error) {
       console.log('Error in sendMessage:', error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
+
+  async getMessages(userId: string, rideId: string) {
+    try {
+      const ride = await this.rideModel.findById(rideId).populate('driver');
+
+      if (!ride) {
+        return new ApiResponse(404, {}, Msg.RIDE_NOT_FOUND);
+      }
+
+      const isPassenger = ride.user.toString() === userId;
+      const isDriver =
+        ride.driver && (ride.driver as any).user.toString() === userId;
+
+      if (!isPassenger && !isDriver) {
+        return new ApiResponse(401, {}, Msg.UNAUTHORIZED);
+      }
+
+      let messages = (await this.chatMessageModel
+        .find({
+          ride: rideId,
+        })
+        .populate('sender', 'firstName lastName avatar')
+        .sort({
+          createdAt: 1,
+        })
+        .lean()) as any[];
+
+      const baseUrl = process.env.BASE_URL;
+      messages = messages.map((msg) => {
+        if (msg.sender) {
+          if (msg.sender.avatar && !msg.sender.avatar.startsWith('http')) {
+            msg.sender.avatar = `${baseUrl}/api/v1/uploads/profile/${msg.sender.avatar}`;
+          } else if (!msg.sender.avatar) {
+            msg.sender.avatar = process.env.DEFAULT_IMAGE;
+          }
+        }
+        return msg;
+      });
+
+      return new ApiResponse(200, messages, Msg.CHAT_FETCHED);
+    } catch (error) {
+      console.log(error);
+
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }
