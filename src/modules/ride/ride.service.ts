@@ -682,14 +682,11 @@ export class RideService {
         return new ApiResponse(404, {}, Msg.DRIVER_NOT_FOUND);
       }
 
-      const ride = await this.rideModel
-        .findById(dto.rideId)
-        .populate({
-          path: 'rideType',
-          select:
-            'title baseFare perKmCharge perMinuteCharge minimumFare seats image',
-        })
-        .populate('user');
+      const ride = await this.rideModel.findById(dto.rideId).populate({
+        path: 'rideType',
+        select:
+          'title baseFare perKmCharge perMinuteCharge minimumFare seats image',
+      });
 
       if (!ride) {
         return new ApiResponse(404, {}, Msg.RIDE_NOT_FOUND);
