@@ -57,6 +57,12 @@ export class RideController {
     return this.rideService.userRideHistory(req.user.id);
   }
 
+  @Get('/driver-ride-history')
+  @Roles(UserRole.DRIVER, UserRole.SUPERADMIN)
+  driverRideHistory(@Req() req: any) {
+    return this.rideService.driverRideHistory(req.user.id);
+  }
+
   @Post('/update-ride-status')
   @Roles(UserRole.DRIVER, UserRole.SUPERADMIN)
   updateRideStatus(@Req() req: any, @Body() dto: UpdateRideStatusDto) {
