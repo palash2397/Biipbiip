@@ -18,7 +18,7 @@ export class RatingController {
   constructor(private readonly ratingService: RatingService) {}
 
   @Post('/submit')
-  @Roles(UserRole.USER, UserRole.DRIVER)
+  @Roles(UserRole.USER, UserRole.DRIVER, UserRole.PASSENGER)
   @UseGuards(RoleGuard)
   submitRating(@Req() req: any, @Body() dto: CreateRatingDto) {
     return this.ratingService.createRating(req.user.id, dto);

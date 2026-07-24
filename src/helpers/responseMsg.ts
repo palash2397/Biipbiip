@@ -170,4 +170,5 @@ export const Msg = {
   RATING_ALREADY_SUBMITTED: 'Rating already submitted',
   RATING_FETCHED: 'Rating fetched successfully',
   RATING_NOT_FOUND: 'Rating not found',
+  REVIEWS_FETCHED: 'Reviews fetched successfully',
 };

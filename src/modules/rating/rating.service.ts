@@ -30,7 +30,7 @@ export class RatingService {
 
   async createRating(userId: string, dto: CreateRatingDto) {
     try {
-      const ride = await this.rideModel.findById(dto.rideId);
+      const ride = await this.rideModel.findById(dto.rideId).populate('driver');
 
       if (!ride) {
         return new ApiResponse(404, {}, Msg.RIDE_NOT_FOUND);
@@ -41,8 +41,7 @@ export class RatingService {
       }
 
       const isPassenger = ride.user.toString() === userId;
-
-      const isDriver = ride.driver?.toString() === userId;
+      const isDriver = ride.driver && (ride.driver as any).user.toString() === userId;
 
       if (!isPassenger && !isDriver) {
         return new ApiResponse(401, {}, Msg.UNAUTHORIZED);
@@ -52,10 +51,10 @@ export class RatingService {
       let ratingFor: RatingFor;
 
       if (isPassenger) {
-        givenTo = ride?.driver?.toString();
+        givenTo = (ride.driver as any).user.toString();
         ratingFor = RatingFor.DRIVER;
       } else {
-        givenTo = ride.user?.toString();
+        givenTo = ride.user.toString();
         ratingFor = RatingFor.USER;
       }
 
@@ -80,6 +79,43 @@ export class RatingService {
       //   await this.updateAverageRating(givenTo);
 
       return new ApiResponse(201, rating, Msg.RATING_SUBMITTED);
+    } catch (error) {
+      console.log(error);
+
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
+
+  async myReviews(userId: string) {
+    try {
+      let reviews = await this.ratingModel
+        .find({
+          givenTo: userId,
+        })
+        .populate('givenBy', 'firstName lastName avatar')
+        .populate('ride', 'createdAt')
+        .sort({
+          createdAt: -1,
+        })
+        .lean() as any[];
+
+      if (!reviews || reviews.length === 0) {
+        return new ApiResponse(404, {}, Msg.RATING_NOT_FOUND);
+      }
+
+      const baseUrl = process.env.BASE_URL;
+      reviews = reviews.map((review) => {
+        if (review.givenBy) {
+          if (review.givenBy.avatar && !review.givenBy.avatar.startsWith('http')) {
+            review.givenBy.avatar = `${baseUrl}/api/v1/uploads/profile/${review.givenBy.avatar}`;
+          } else if (!review.givenBy.avatar) {
+            review.givenBy.avatar = process.env.DEFAULT_IMAGE;
+          }
+        }
+        return review;
+      });
+
+      return new ApiResponse(200, reviews, Msg.REVIEWS_FETCHED);
     } catch (error) {
       console.log(error);
 
