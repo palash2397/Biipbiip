@@ -206,6 +206,7 @@ export class RideService {
         distance: Number(distance.toFixed(2)),
         estimatedTime,
         estimatedFare: Number(estimatedFare.toFixed(2)),
+        currentFare: Number(estimatedFare.toFixed(2)),
 
         status: RideStatus.SEARCHING_DRIVER,
       });
@@ -213,6 +214,7 @@ export class RideService {
       const nearbyDrivers = await this.driverModel
         .find({
           isOnline: true,
+          user: { $ne: userId },
           // verificationStatus: VerificationStatus.APPROVED,
 
           currentLocation: {
@@ -497,6 +499,12 @@ export class RideService {
       if (!isDriver) {
         return new ApiResponse(401, {}, Msg.UNAUTHORIZED);
       }
+
+      this.socketService.emitToUser(
+        ride.user.toString(),
+        'fareRejected',
+        { rideId: ride._id }
+      );
 
       await this.moveToNextDriver(ride);
 
@@ -1280,6 +1288,23 @@ export class RideService {
 
       if (!isPassenger && !isDriver) {
         return new ApiResponse(401, {}, Msg.UNAUTHORIZED);
+      }
+
+      if (isPassenger) {
+        const driver = await this.driverModel.findById(ride.negotiatingDriver);
+        if (driver) {
+          this.socketService.emitToUser(
+            driver.user.toString(),
+            'fareRejected',
+            { rideId: ride._id }
+          );
+        }
+      } else {
+        this.socketService.emitToUser(
+          ride.user.toString(),
+          'fareRejected',
+          { rideId: ride._id }
+        );
       }
 
       await this.moveToNextDriver(ride);

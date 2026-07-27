@@ -10,7 +10,7 @@ import { Socket } from 'socket.io';
 import { RideService } from './ride.service';
 import { AcceptRideDto } from './dto/accept-ride.dto';
 import { CounterFareDto } from './dto/counter-fare.dto';
-// import { RejectRideDto } from './dto/reject-ride.dto';
+import { RejectRideDto } from './dto/reject-ride.dto';
 
 import { CancelRideDto } from './dto/cancel-ride.dto';
 
@@ -33,13 +33,21 @@ export class RideGateway {
     return this.rideService.acceptRide(userId, data);
   }
 
-  // @SubscribeMessage('counterFare')
-  // async counterFare(
-  //   @ConnectedSocket() client: Socket,
-  //   @MessageBody() dto: CounterFareDto,
-  // ) {
-  //   return this.rideService.counterFare(client.data.user.id, dto);
-  // }
+  @SubscribeMessage('counterFare')
+  async counterFare(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() dto: CounterFareDto,
+  ) {
+    return this.rideService.counterFare(client.data.user.id, dto);
+  }
+
+  @SubscribeMessage('rejectRide')
+  async rejectRide(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() dto: RejectRideDto,
+  ) {
+    return this.rideService.rejectRide(client.data.user.id, dto);
+  }
 
   @SubscribeMessage('acceptCounterFare')
   async acceptCounterFare(
