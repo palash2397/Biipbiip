@@ -7,6 +7,7 @@ import { User } from 'src/modules/user/schema/user.schema';
 import { Driver } from 'src/modules/driver/schema/driver.schema';
 import { RideType } from 'src/modules/ride-type/schema/ride-type.schema';
 import { RideStatus } from 'src/common/enums/ride/ride-enum';
+import { CounterBy } from 'src/common/enums/ride/counter-enum';
 
 export type RideDocument = HydratedDocument<Ride>;
 
@@ -75,6 +76,23 @@ export class Ride {
 
   @Prop({ type: Number, required: true })
   estimatedFare: number;
+
+  @Prop({
+    type: Number,
+    required: true,
+  })
+  currentFare: number;
+
+  @Prop({
+    default: 0,
+  })
+  negotiationRound: number;
+
+  @Prop({
+    enum: CounterBy,
+    default: CounterBy.USER,
+  })
+  lastCounterBy: CounterBy;
 
   @Prop({
     type: String,

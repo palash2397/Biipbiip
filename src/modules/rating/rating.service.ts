@@ -7,7 +7,7 @@ import { Ride, RideDocument } from '../ride/schema/ride.schema';
 import { User, UserDocument } from '../user/schema/user.schema';
 import { Driver, DriverDocument } from '../driver/schema/driver.schema';
 
-import { UserRole } from 'src/common/enums/user/role.enum';
+// import { UserRole } from 'src/common/enums/user/role.enum';
 import { RideStatus } from 'src/common/enums/ride/ride-enum';
 
 import { ApiResponse } from 'src/helpers/ApiResponse';
