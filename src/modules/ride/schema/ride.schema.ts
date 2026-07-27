@@ -95,6 +95,15 @@ export class Ride {
   lastCounterBy: CounterBy;
 
   @Prop({
+    default: [],
+  })
+  fareHistory: {
+    fare: number;
+    offeredBy: CounterBy;
+    createdAt: Date;
+  }[];
+
+  @Prop({
     type: String,
     enum: RideStatus,
     default: RideStatus.SEARCHING_DRIVER,
