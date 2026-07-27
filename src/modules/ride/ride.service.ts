@@ -16,6 +16,7 @@ import { Ride, RideDocument } from './schema/ride.schema';
 import { AcceptRideDto } from './dto/accept-ride.dto';
 import { RejectRideDto } from './dto/reject-ride.dto';
 import { CancelRideDto } from './dto/cancel-ride.dto';
+import { CounterFareDto } from './dto/counter-fare.dto';
 import { UpdateRideStatusDto } from './dto/ride-status-dto';
 
 import {
@@ -25,6 +26,8 @@ import {
 
 import { Driver, DriverDocument } from '../driver/schema/driver.schema';
 import { User, UserDocument } from '../user/schema/user.schema';
+
+import { CounterBy } from 'src/common/enums/ride/counter-enum';
 
 import { SocketService } from '../socket/socket.service';
 
@@ -45,6 +48,65 @@ export class RideService {
 
     private readonly socketService: SocketService,
   ) {}
+
+  private async moveToNextDriver(ride: RideDocument) {
+    ride.currentDriverIndex++;
+
+    ride.driver = undefined;
+
+    ride.currentFare = ride.estimatedFare;
+
+    ride.negotiationRound = 0;
+
+    ride.lastCounterBy = CounterBy.USER;
+
+    ride.status = RideStatus.SEARCHING_DRIVER;
+
+    ride.fareHistory = [];
+
+    if (ride.currentDriverIndex >= ride.driverQueue.length) {
+      await ride.save();
+
+      this.socketService.emitToUser(ride.user.toString(), 'rideCancelled', {
+        rideId: ride._id,
+      });
+
+      return;
+    }
+
+    await ride.save();
+
+    const nextDriver = await this.driverModel
+      .findById(ride.driverQueue[ride.currentDriverIndex])
+      .populate('user');
+
+    if (!nextDriver) {
+      return;
+    }
+
+    this.socketService.emitToUser(
+      nextDriver.user['_id'].toString(),
+      'newRideRequest',
+      {
+        rideId: ride._id,
+
+        pickupAddress: ride.pickupAddress,
+        pickupLatitude: ride.pickupLatitude,
+        pickupLongitude: ride.pickupLongitude,
+
+        destinationAddress: ride.destinationAddress,
+        destinationLatitude: ride.destinationLatitude,
+        destinationLongitude: ride.destinationLongitude,
+
+        distance: ride.distance,
+        estimatedTime: ride.estimatedTime,
+
+        estimatedFare: ride.estimatedFare,
+
+        currentFare: ride.currentFare,
+      },
+    );
+  }
 
   async bookRide(userId: string, dto: BookRideDto) {
     try {
@@ -169,15 +231,52 @@ export class RideService {
       //   JSON.stringify(nearbyDrivers, null, 2),
       // );
 
-      for (const driver of nearbyDrivers) {
-        const driverUser: any = driver.user;
+      // for (const driver of nearbyDrivers) {
+      //   const driverUser: any = driver.user;
 
-        if (!driverUser?._id) {
-          continue;
-        }
+      //   if (!driverUser?._id) {
+      //     continue;
+      //   }
+
+      //   this.socketService.emitToUser(
+      //     driverUser._id.toString(),
+      //     'newRideRequest',
+      //     {
+      //       rideId: ride._id,
+
+      //       pickupAddress: ride.pickupAddress,
+      //       pickupLatitude: ride.pickupLatitude,
+      //       pickupLongitude: ride.pickupLongitude,
+
+      //       destinationAddress: ride.destinationAddress,
+      //       destinationLatitude: ride.destinationLatitude,
+      //       destinationLongitude: ride.destinationLongitude,
+
+      //       distance: ride.distance,
+      //       estimatedTime: ride.estimatedTime,
+      //       estimatedFare: ride.estimatedFare,
+
+      //       rideType: {
+      //         _id: rideType._id,
+      //         title: rideType.title,
+      //       },
+      //     },
+      //   );
+      // }
+
+      const driverQueue = nearbyDrivers.map((driver: any) => driver._id);
+
+      ride.driverQueue = driverQueue;
+      ride.currentDriverIndex = 0;
+      ride.currentFare = ride.estimatedFare;
+
+      await ride.save();
+
+      if (nearbyDrivers.length) {
+        const firstDriver: any = nearbyDrivers[0];
 
         this.socketService.emitToUser(
-          driverUser._id.toString(),
+          firstDriver.user._id.toString(),
           'newRideRequest',
           {
             rideId: ride._id,
@@ -192,7 +291,9 @@ export class RideService {
 
             distance: ride.distance,
             estimatedTime: ride.estimatedTime,
+
             estimatedFare: ride.estimatedFare,
+            currentFare: ride.currentFare,
 
             rideType: {
               _id: rideType._id,
@@ -217,36 +318,115 @@ export class RideService {
     }
   }
 
+  // async acceptRide(userId: string, dto: AcceptRideDto) {
+  //   try {
+  //     const driver = await this.driverModel.findOne({
+  //       user: userId,
+  //       isOnline: true,
+  //       // verificationStatus: VerificationStatus.APPROVED,
+  //     });
+
+  //     if (!driver) {
+  //       return new ApiResponse(404, {}, Msg.DRIVER_NOT_AVAILABLE);
+  //     }
+
+  //     const ride = await this.rideModel.findOneAndUpdate(
+  //       {
+  //         _id: dto.rideId,
+  //         driver: null,
+  //         status: RideStatus.SEARCHING_DRIVER,
+  //       },
+  //       {
+  //         driver: driver._id,
+  //         status: RideStatus.DRIVER_FOUND,
+  //       },
+  //       {
+  //         new: true,
+  //       },
+  //     );
+
+  //     if (!ride) {
+  //       return new ApiResponse(404, {}, Msg.RIDE_ALREADY_ACCEPTED);
+  //     }
+
+  //     const rideData = await this.rideModel
+  //       .findById(ride._id)
+  //       .populate({
+  //         path: 'driver',
+  //         populate: {
+  //           path: 'user',
+  //           select: 'firstName lastName email avatar phoneNumber countryCode',
+  //         },
+  //       })
+  //       .populate('rideType')
+  //       .lean();
+
+  //     this.socketService.emitToUser(
+  //       ride.user.toString(),
+  //       'driverFound',
+  //       rideData,
+  //     );
+
+  //     return new ApiResponse(
+  //       201,
+  //       {
+  //         ride,
+  //         driver,
+  //         rideData,
+  //       },
+  //       Msg.RIDE_ACCEPTED,
+  //     );
+  //   } catch (error) {
+  //     console.log('error while accepting ride', error);
+
+  //     return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+  //   }
+  // }
+
   async acceptRide(userId: string, dto: AcceptRideDto) {
     try {
       const driver = await this.driverModel.findOne({
         user: userId,
         isOnline: true,
-        // verificationStatus: VerificationStatus.APPROVED,
       });
 
       if (!driver) {
         return new ApiResponse(404, {}, Msg.DRIVER_NOT_AVAILABLE);
       }
 
-      const ride = await this.rideModel.findOneAndUpdate(
-        {
-          _id: dto.rideId,
-          driver: null,
-          status: RideStatus.SEARCHING_DRIVER,
-        },
-        {
-          driver: driver._id,
-          status: RideStatus.DRIVER_FOUND,
-        },
-        {
-          new: true,
-        },
-      );
+      const ride = await this.rideModel.findById(dto.rideId);
 
       if (!ride) {
-        return new ApiResponse(404, {}, Msg.RIDE_ALREADY_ACCEPTED);
+        return new ApiResponse(404, {}, Msg.RIDE_NOT_FOUND);
       }
+
+      if (
+        ![RideStatus.SEARCHING_DRIVER, RideStatus.FARE_NEGOTIATION].includes(
+          ride.status,
+        )
+      ) {
+        return new ApiResponse(400, {}, Msg.INVALID_RIDE_STATUS);
+      }
+
+      if (ride.driver) {
+        return new ApiResponse(400, {}, Msg.RIDE_ALREADY_ACCEPTED);
+      }
+
+      const currentDriverId =
+        ride.driverQueue[ride.currentDriverIndex]?.toString();
+
+      if (!currentDriverId) {
+        return new ApiResponse(400, {}, Msg.DRIVER_NOT_AVAILABLE);
+      }
+
+      if (currentDriverId !== driver._id.toString()) {
+        return new ApiResponse(400, {}, Msg.RIDE_NOT_ASSIGNED_TO_DRIVER);
+      }
+
+      ride.driver = driver._id;
+      ride.status = RideStatus.DRIVER_FOUND;
+
+      await ride.save();
 
       const rideData = await this.rideModel
         .findById(ride._id)
@@ -267,7 +447,7 @@ export class RideService {
       );
 
       return new ApiResponse(
-        201,
+        200,
         {
           ride,
           driver,
@@ -871,6 +1051,88 @@ export class RideService {
 
       return new ApiResponse(200, {}, Msg.RIDE_STATUS_UPDATED_SUCCESSFULLY);
     } catch (error) {
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
+
+  async counterFare(userId: string, dto: CounterFareDto) {
+    try {
+      const ride = await this.rideModel.findById(dto.rideId);
+
+      if (!ride) {
+        return new ApiResponse(404, {}, Msg.RIDE_NOT_FOUND);
+      }
+
+      if (!ride.driver) {
+        return new ApiResponse(400, {}, Msg.DRIVER_NOT_ASSIGNED);
+      }
+
+      if (
+        ![RideStatus.SEARCHING_DRIVER, RideStatus.FARE_NEGOTIATION].includes(
+          ride.status,
+        )
+      ) {
+        return new ApiResponse(400, {}, Msg.INVALID_RIDE_STATUS);
+      }
+
+      const isPassenger = ride.user.toString() === userId;
+
+      const driver = await this.driverModel.findOne({
+        user: userId,
+      });
+
+      const isDriver =
+        driver && ride.driver.toString() === driver._id.toString();
+
+      if (!isPassenger && !isDriver) {
+        return new ApiResponse(401, {}, Msg.UNAUTHORIZED);
+      }
+
+      if (isPassenger && ride.lastCounterBy === CounterBy.USER) {
+        return new ApiResponse(400, {}, Msg.WAIT_FOR_DRIVER_RESPONSE);
+      }
+
+      if (isDriver && ride.lastCounterBy === CounterBy.DRIVER) {
+        return new ApiResponse(400, {}, Msg.WAIT_FOR_USER_RESPONSE);
+      }
+
+      if (ride.negotiationRound >= 3) {
+        await this.moveToNextDriver(ride);
+
+        return new ApiResponse(400, {}, Msg.NEGOTIATION_LIMIT_REACHED);
+      }
+
+      ride.currentFare = dto.fare;
+
+      ride.negotiationRound += 1;
+
+      ride.lastCounterBy = isPassenger ? CounterBy.USER : CounterBy.DRIVER;
+
+      ride.status = RideStatus.FARE_NEGOTIATION;
+
+      ride.fareHistory.push({
+        fare: dto.fare,
+        offeredBy: ride.lastCounterBy,
+        createdAt: new Date(),
+      });
+
+      await ride.save();
+
+      const receiverId = isPassenger
+        ? (await this.driverModel.findById(ride.driver))?.user.toString()
+        : ride.user.toString();
+
+      this.socketService.emitToUser(receiverId, 'fareCounterReceived', {
+        rideId: ride._id,
+        currentFare: ride.currentFare,
+        negotiationRound: ride.negotiationRound,
+        lastCounterBy: ride.lastCounterBy,
+      });
+
+      return new ApiResponse(200, ride, Msg.FARE_COUNTER_SENT);
+    } catch (error) {
+      console.log('counterFare error', error);
+
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }

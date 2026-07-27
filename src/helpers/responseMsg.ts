@@ -171,4 +171,12 @@ export const Msg = {
   RATING_FETCHED: 'Rating fetched successfully',
   RATING_NOT_FOUND: 'Rating not found',
   REVIEWS_FETCHED: 'Reviews fetched successfully',
+
+  //Counter fare
+  FARE_COUNTER_SENT: 'Fare counter sent successfully',
+  FARE_COUNTER_RECEIVED: 'Fare counter received successfully',
+  FARE_COUNTER_NOT_FOUND: 'Fare counter not found',
+  WAIT_FOR_DRIVER_RESPONSE: 'Wait for driver response',
+  WAIT_FOR_USER_RESPONSE: 'Wait for user response',
+  NEGOTIATION_LIMIT_REACHED: 'Negotiation limit reached',
 };

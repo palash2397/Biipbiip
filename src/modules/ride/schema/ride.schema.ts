@@ -133,6 +133,18 @@ export class Ride {
     default: null,
   })
   cancelledBy: UserRole;
+
+  @Prop({
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: Driver.name,
+    default: [],
+  })
+  driverQueue: mongoose.Types.ObjectId[];
+
+  @Prop({
+    default: 0,
+  })
+  currentDriverIndex: number;
 }
 
 export const RideSchema = SchemaFactory.createForClass(Ride);
