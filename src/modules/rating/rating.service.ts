@@ -45,7 +45,8 @@ export class RatingService {
       }
 
       const isPassenger = ride.user.toString() === userId;
-      const isDriver = ride.driver && (ride.driver as any).user.toString() === userId;
+      const isDriver =
+        ride.driver && (ride.driver as any).user.toString() === userId;
 
       if (!isPassenger && !isDriver) {
         return new ApiResponse(401, {}, Msg.UNAUTHORIZED);
@@ -94,12 +95,12 @@ export class RatingService {
     try {
       const driver = await this.driverModel.findOne({ user: userId });
       const givenToIds = [userId];
-      
+
       if (driver) {
         givenToIds.push(driver._id.toString());
       }
 
-      let reviews = await this.ratingModel
+      let reviews = (await this.ratingModel
         .find({
           givenTo: { $in: givenToIds },
         })
@@ -108,7 +109,7 @@ export class RatingService {
         .sort({
           createdAt: -1,
         })
-        .lean() as any[];
+        .lean()) as any[];
 
       if (!reviews || reviews.length === 0) {
         return new ApiResponse(404, {}, Msg.RATING_NOT_FOUND);
@@ -117,7 +118,10 @@ export class RatingService {
       const baseUrl = process.env.BASE_URL;
       reviews = reviews.map((review) => {
         if (review.givenBy) {
-          if (review.givenBy.avatar && !review.givenBy.avatar.startsWith('http')) {
+          if (
+            review.givenBy.avatar &&
+            !review.givenBy.avatar.startsWith('http')
+          ) {
             review.givenBy.avatar = `${baseUrl}/api/v1/uploads/profile/${review.givenBy.avatar}`;
           } else if (!review.givenBy.avatar) {
             review.givenBy.avatar = process.env.DEFAULT_IMAGE;
