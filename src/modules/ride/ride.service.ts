@@ -52,7 +52,9 @@ export class RideService {
   private async moveToNextDriver(ride: RideDocument) {
     ride.currentDriverIndex++;
 
-    ride.driver = undefined;
+    ride.driver = null;
+
+    ride.negotiatingDriver = null;
 
     ride.currentFare = ride.estimatedFare;
 
@@ -67,22 +69,24 @@ export class RideService {
     if (ride.currentDriverIndex >= ride.driverQueue.length) {
       await ride.save();
 
-      this.socketService.emitToUser(ride.user.toString(), 'rideCancelled', {
+      this.socketService.emitToUser(ride.user.toString(), 'noDriverFound', {
         rideId: ride._id,
       });
 
       return;
     }
 
-    await ride.save();
-
     const nextDriver = await this.driverModel
       .findById(ride.driverQueue[ride.currentDriverIndex])
       .populate('user');
 
     if (!nextDriver) {
-      return;
+      return await this.moveToNextDriver(ride);
     }
+
+    ride.negotiatingDriver = nextDriver._id;
+
+    await ride.save();
 
     this.socketService.emitToUser(
       nextDriver.user['_id'].toString(),
@@ -269,6 +273,10 @@ export class RideService {
       ride.driverQueue = driverQueue;
       ride.currentDriverIndex = 0;
       ride.currentFare = ride.estimatedFare;
+
+      if (driverQueue.length) {
+        ride.negotiatingDriver = driverQueue[0];
+      }
 
       await ride.save();
 
@@ -1132,6 +1140,110 @@ export class RideService {
       return new ApiResponse(200, ride, Msg.FARE_COUNTER_SENT);
     } catch (error) {
       console.log('counterFare error', error);
+
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
+
+  async acceptCounterFare(userId: string, dto: AcceptRideDto) {
+    try {
+      const ride = await this.rideModel.findById(dto.rideId);
+
+      if (!ride) {
+        return new ApiResponse(404, {}, Msg.RIDE_NOT_FOUND);
+      }
+
+      if (ride.user.toString() !== userId) {
+        return new ApiResponse(401, {}, Msg.UNAUTHORIZED);
+      }
+
+      if (ride.status !== RideStatus.FARE_NEGOTIATION) {
+        return new ApiResponse(400, {}, Msg.INVALID_RIDE_STATUS);
+      }
+
+      if (!ride.negotiatingDriver) {
+        return new ApiResponse(400, {}, Msg.DRIVER_NOT_AVAILABLE);
+      }
+
+      ride.driver = ride.negotiatingDriver;
+
+      ride.negotiatingDriver = undefined;
+
+      ride.status = RideStatus.DRIVER_FOUND;
+
+      await ride.save();
+
+      const rideData = await this.rideModel
+        .findById(ride._id)
+        .populate({
+          path: 'driver',
+          populate: {
+            path: 'user',
+            select: 'firstName lastName email avatar phoneNumber countryCode',
+          },
+        })
+        .populate('rideType')
+        .lean();
+
+      const driver = await this.driverModel
+        .findById(ride.driver)
+        .populate('user');
+
+      this.socketService.emitToUser(
+        driver?.user['_id'].toString(),
+        'fareAccepted',
+        rideData,
+      );
+
+      this.socketService.emitToUser(
+        ride.user.toString(),
+        'driverFound',
+        rideData,
+      );
+
+      return new ApiResponse(200, rideData, Msg.RIDE_ACCEPTED);
+    } catch (error) {
+      console.log('acceptCounterFare', error);
+
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
+
+  async rejectCounterFare(userId: string, dto: AcceptRideDto) {
+    try {
+      const ride = await this.rideModel.findById(dto.rideId);
+
+      if (!ride) {
+        return new ApiResponse(404, {}, Msg.RIDE_NOT_FOUND);
+      }
+
+      if (ride.status !== RideStatus.FARE_NEGOTIATION) {
+        return new ApiResponse(400, {}, Msg.INVALID_RIDE_STATUS);
+      }
+
+      const isPassenger = ride.user.toString() === userId;
+
+      let isDriver = false;
+
+      if (ride.negotiatingDriver) {
+        const driver = await this.driverModel.findOne({
+          user: userId,
+        });
+
+        isDriver =
+          !!driver &&
+          driver._id.toString() === ride.negotiatingDriver.toString();
+      }
+
+      if (!isPassenger && !isDriver) {
+        return new ApiResponse(401, {}, Msg.UNAUTHORIZED);
+      }
+
+      await this.moveToNextDriver(ride);
+
+      return new ApiResponse(200, {}, Msg.COUNTER_FARE_REJECTED);
+    } catch (error) {
+      console.log('rejectCounterFare', error);
 
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }

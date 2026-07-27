@@ -40,4 +40,24 @@ export class RideGateway {
   // ) {
   //   return this.rideService.counterFare(client.data.user.id, dto);
   // }
+
+  @SubscribeMessage('acceptCounterFare')
+  async acceptCounterFare(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() dto: AcceptRideDto,
+  ) {
+    const userId = client.data.user.id;
+
+    return this.rideService.acceptCounterFare(userId, dto);
+  }
+
+  @SubscribeMessage('rejectCounterFare')
+  async rejectCounterFare(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() dto: AcceptRideDto,
+  ) {
+    const userId = client.data.user.id;
+
+    return this.rideService.rejectCounterFare(userId, dto);
+  }
 }

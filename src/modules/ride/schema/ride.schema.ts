@@ -25,7 +25,7 @@ export class Ride {
     ref: Driver.name,
     default: null,
   })
-  driver?: Types.ObjectId;
+  driver?: Types.ObjectId | null;
 
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
@@ -145,6 +145,13 @@ export class Ride {
     default: 0,
   })
   currentDriverIndex: number;
+
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Driver.name,
+    default: null,
+  })
+  negotiatingDriver?: mongoose.Types.ObjectId | null;
 }
 
 export const RideSchema = SchemaFactory.createForClass(Ride);
