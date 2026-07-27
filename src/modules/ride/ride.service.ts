@@ -433,6 +433,7 @@ export class RideService {
 
       ride.driver = driver._id;
       ride.status = RideStatus.DRIVER_FOUND;
+      ride.negotiatingDriver = undefined;
 
       await ride.save();
 
@@ -472,7 +473,38 @@ export class RideService {
 
   async rejectRide(userId: string, dto: RejectRideDto) {
     try {
-    } catch (error) {}
+      const ride = await this.rideModel.findById(dto.rideId);
+
+      if (!ride) {
+        return new ApiResponse(404, {}, Msg.RIDE_NOT_FOUND);
+      }
+
+      if (ride.status !== RideStatus.SEARCHING_DRIVER) {
+        return new ApiResponse(400, {}, Msg.INVALID_RIDE_STATUS);
+      }
+
+      let isDriver = false;
+      if (ride.negotiatingDriver) {
+        const driver = await this.driverModel.findOne({
+          user: userId,
+        });
+
+        isDriver =
+          !!driver &&
+          driver._id.toString() === ride.negotiatingDriver.toString();
+      }
+
+      if (!isDriver) {
+        return new ApiResponse(401, {}, Msg.UNAUTHORIZED);
+      }
+
+      await this.moveToNextDriver(ride);
+
+      return new ApiResponse(200, {}, Msg.RIDE_STATUS_UPDATED_SUCCESSFULLY);
+    } catch (error) {
+      console.log('error while rejecting ride', error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
   }
 
   async cancelRide(userId: string, dto: CancelRideDto) {
@@ -1071,8 +1103,8 @@ export class RideService {
         return new ApiResponse(404, {}, Msg.RIDE_NOT_FOUND);
       }
 
-      if (!ride.driver) {
-        return new ApiResponse(400, {}, Msg.DRIVER_NOT_ASSIGNED);
+      if (!ride.negotiatingDriver) {
+        return new ApiResponse(400, {}, Msg.DRIVER_NOT_AVAILABLE);
       }
 
       if (
@@ -1090,7 +1122,7 @@ export class RideService {
       });
 
       const isDriver =
-        driver && ride.driver.toString() === driver._id.toString();
+        driver && ride.negotiatingDriver.toString() === driver._id.toString();
 
       if (!isPassenger && !isDriver) {
         return new ApiResponse(401, {}, Msg.UNAUTHORIZED);
@@ -1127,7 +1159,7 @@ export class RideService {
       await ride.save();
 
       const receiverId = isPassenger
-        ? (await this.driverModel.findById(ride.driver))?.user.toString()
+        ? (await this.driverModel.findById(ride.negotiatingDriver))?.user.toString()
         : ride.user.toString();
 
       this.socketService.emitToUser(receiverId, 'fareCounterReceived', {
@@ -1153,16 +1185,27 @@ export class RideService {
         return new ApiResponse(404, {}, Msg.RIDE_NOT_FOUND);
       }
 
-      if (ride.user.toString() !== userId) {
-        return new ApiResponse(401, {}, Msg.UNAUTHORIZED);
-      }
-
       if (ride.status !== RideStatus.FARE_NEGOTIATION) {
         return new ApiResponse(400, {}, Msg.INVALID_RIDE_STATUS);
       }
 
       if (!ride.negotiatingDriver) {
         return new ApiResponse(400, {}, Msg.DRIVER_NOT_AVAILABLE);
+      }
+
+      const isPassenger = ride.user.toString() === userId;
+      let isDriver = false;
+
+      const driver = await this.driverModel.findOne({
+        user: userId,
+      });
+
+      if (driver) {
+        isDriver = driver._id.toString() === ride.negotiatingDriver.toString();
+      }
+
+      if (!isPassenger && !isDriver) {
+        return new ApiResponse(401, {}, Msg.UNAUTHORIZED);
       }
 
       ride.driver = ride.negotiatingDriver;
@@ -1185,12 +1228,12 @@ export class RideService {
         .populate('rideType')
         .lean();
 
-      const driver = await this.driverModel
+      const assignedDriver = await this.driverModel
         .findById(ride.driver)
         .populate('user');
 
       this.socketService.emitToUser(
-        driver?.user['_id'].toString(),
+        assignedDriver?.user['_id'].toString(),
         'fareAccepted',
         rideData,
       );
