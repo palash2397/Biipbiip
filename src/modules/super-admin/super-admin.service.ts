@@ -12,6 +12,7 @@ import * as bcrypt from 'bcrypt';
 
 import { SuperAdminLoginDto } from '../auth/dto/superadmin-login.dto';
 import { UserRole } from 'src/common/enums/user/role.enum';
+import { VerificationStatus } from 'src/common/enums/driver/verification-status.enum';
 
 @Injectable()
 export class SuperAdminService {
@@ -187,6 +188,14 @@ export class SuperAdminService {
       );
     } catch (error) {
       console.log('error while fetching driver by id', error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
+
+  async approveOrRejectDriver(driverId: string, status: VerificationStatus) {
+    try {
+    } catch (error) {
+      console.log(`error while changing the driver status`, error);
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }
