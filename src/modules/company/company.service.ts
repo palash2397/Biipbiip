@@ -5,6 +5,7 @@ import { Company, CompanyDocument } from './schema/company.schema';
 import { CompanyCar, CompanyCarDocument } from './schema/company-car.schema';
 import { RegisterCompanyDto } from './dto/register-company.dto';
 import { AddCompanyCarDto } from './dto/add-company-car.dto';
+import { UpdateCompanyCarDto } from './dto/update-company-car.dto';
 import { LoginCompanyDto } from './dto/login-company.dto';
 import { ApiResponse } from 'src/helpers/ApiResponse';
 import { Msg } from 'src/helpers/responseMsg';
@@ -296,6 +297,66 @@ export class CompanyService {
       return new ApiResponse(200, { car: formattedCar }, Msg.DATA_FETCHED);
     } catch (error) {
       console.log('Error while fetching car by id', error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
+
+  async updateCar(
+    companyId: string,
+    carId: string,
+    dto: UpdateCompanyCarDto,
+    files: {
+      vehiclePhotos?: Express.Multer.File[];
+      insuranceInvoice?: Express.Multer.File[];
+      registrationCardImage?: Express.Multer.File[];
+    },
+  ) {
+    try {
+      const car = await this.companyCarModel.findOne({
+        _id: carId,
+        companyId: new Types.ObjectId(companyId),
+      });
+
+      if (!car) {
+        return new ApiResponse(404, {}, Msg.CAR_NOT_FOUND);
+      }
+
+      // Update fields
+      if (dto.carName) car.carName = dto.carName;
+      if (dto.vehicleBrand) car.vehicleBrand = dto.vehicleBrand;
+      if (dto.vehicleModel) car.vehicleModel = dto.vehicleModel;
+      if (dto.manufacturingYear) car.manufacturingYear = dto.manufacturingYear;
+      if (dto.color) car.color = dto.color;
+      if (dto.vinNumber) car.vinNumber = dto.vinNumber;
+      if (dto.registrationNo) car.registrationNo = dto.registrationNo;
+      if (dto.perDayCharge) car.perDayCharge = dto.perDayCharge;
+      if (dto.fuelType) car.fuelType = dto.fuelType;
+      if (dto.transmission) car.transmission = dto.transmission;
+      if (dto.noOfSeats) car.noOfSeats = dto.noOfSeats;
+      if (dto.noOfDoors) car.noOfDoors = dto.noOfDoors;
+      if (dto.mileage) car.mileage = dto.mileage;
+      if (dto.airConditioning !== undefined) car.airConditioning = dto.airConditioning;
+      if (dto.bluetooth !== undefined) car.bluetooth = dto.bluetooth;
+      if (dto.usb !== undefined) car.usb = dto.usb;
+      if (dto.gps !== undefined) car.gps = dto.gps;
+      if (dto.description !== undefined) car.description = dto.description;
+
+      // Update files if provided
+      if (files?.vehiclePhotos && files.vehiclePhotos.length > 0) {
+        car.vehiclePhotos = files.vehiclePhotos.map((file) => file.filename);
+      }
+      if (files?.insuranceInvoice && files.insuranceInvoice.length > 0) {
+        car.insuranceInvoice = files.insuranceInvoice[0].filename;
+      }
+      if (files?.registrationCardImage && files.registrationCardImage.length > 0) {
+        car.registrationCardImage = files.registrationCardImage[0].filename;
+      }
+
+      await car.save();
+
+      return new ApiResponse(200, { car }, Msg.DATA_UPDATED);
+    } catch (error) {
+      console.log('Error while updating company car', error);
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }

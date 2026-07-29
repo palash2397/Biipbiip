@@ -3,6 +3,7 @@ import {
   Controller,
   Post,
   Get,
+  Patch,
   Req,
   Param,
   Query,
@@ -14,6 +15,7 @@ import { CompanyService } from './company.service';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { RegisterCompanyDto } from './dto/register-company.dto';
 import { AddCompanyCarDto } from './dto/add-company-car.dto';
+import { UpdateCompanyCarDto } from './dto/update-company-car.dto';
 import { LoginCompanyDto } from './dto/login-company.dto';
 import {
   FileFieldsInterceptor,
@@ -106,5 +108,33 @@ export class CompanyController {
   @UseGuards(JwtAuthGuard)
   getCarById(@Param('carId') carId: string) {
     return this.companyService.carById(carId);
+  }
+
+  @Patch('/car')
+  @ApiBearerAuth('access-token')
+  @ApiConsumes('multipart/form-data')
+  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: 'vehiclePhotos', maxCount: 6 },
+        { name: 'insuranceInvoice', maxCount: 1 },
+        { name: 'registrationCardImage', maxCount: 1 },
+      ],
+      multerConfig('company-car'),
+    ),
+  )
+  updateCar(
+    @Req() req: any,
+    @Body() dto: UpdateCompanyCarDto,
+    @UploadedFiles()
+    files: {
+      vehiclePhotos?: Express.Multer.File[];
+      insuranceInvoice?: Express.Multer.File[];
+      registrationCardImage?: Express.Multer.File[];
+    },
+  ) {
+    return this.companyService.updateCar(req.user?.id, dto.carId, dto, files);
   }
 }
