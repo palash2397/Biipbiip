@@ -10,7 +10,7 @@ export class VerifyOtpDto {
   countryCode: string;
 
   @ApiProperty({
-    example: '+919876543210',
+    example: '9876543210',
   })
   @IsString()
   @IsNotEmpty()
