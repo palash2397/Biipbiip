@@ -47,6 +47,13 @@ export class User {
   email?: string;
 
   @Prop({
+    type: String,
+    trim: true,
+    default: null,
+  })
+  password?: string;
+
+  @Prop({
     type: [String],
     enum: UserRole,
     default: [],

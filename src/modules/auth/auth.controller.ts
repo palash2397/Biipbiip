@@ -6,6 +6,7 @@ import { AuthService } from './auth.service';
 import { SendOtpDto } from './dto/send-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { ResendOtpDto } from './dto/resend-otp.dto';
+import { SuperAdminLoginDto } from './dto/superadmin-login.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -25,5 +26,10 @@ export class AuthController {
   @Post('/resendOtp')
   resendOtp(@Body() dto: ResendOtpDto) {
     return this.authService.resendOtp(dto);
+  }
+
+  @Post('/superAdminLogin')
+  superAdminLogin(@Body() dto: SuperAdminLoginDto) {
+    return this.authService.superAdminLogin(dto);
   }
 }
