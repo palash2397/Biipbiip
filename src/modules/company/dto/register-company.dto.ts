@@ -68,6 +68,12 @@ export class RegisterCompanyDto {
   address: string;
 
   @ApiProperty({
+    example: ' Indore',
+  })
+  @IsString()
+  city: string;
+
+  @ApiProperty({
     type: [String],
     format: 'binary',
   })

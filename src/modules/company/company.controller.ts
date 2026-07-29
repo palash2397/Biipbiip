@@ -44,8 +44,9 @@ export class CompanyController {
   @Get('/my')
   @ApiBearerAuth('access-token')
   @Roles(UserRole.ADMIN)
-  @UseGuards(JwtAuthGuard, RoleGuard)
+  @UseGuards(JwtAuthGuard)
   myProfile(@Req() req: any) {
+    // console.log(req.user);
     return this.companyService.myProfile(req.user?.id);
   }
 }

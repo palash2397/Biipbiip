@@ -130,6 +130,7 @@ export class CompanyService {
         ownerName: company.ownerName,
         phoneNumber: company.phoneNumber,
         gstNumber: company.gstNumber,
+        city: company.city,
         address: company.address,
         isActive: company.isActive,
         isVerified: company.isVerified,

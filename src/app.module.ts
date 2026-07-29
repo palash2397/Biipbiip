@@ -17,6 +17,7 @@ import { ChatModule } from './modules/chat/chat.module';
 import { RatingModule } from './modules/rating/rating.module';
 import { SuperAdminModule } from './modules/super-admin/super-admin.module';
 import { CompanyModule } from './modules/company/company.module';
+import { CompanyCarsModule } from './modules/company-cars/company-cars.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { CompanyModule } from './modules/company/company.module';
     RatingModule,
     SuperAdminModule,
     CompanyModule,
+    CompanyCarsModule,
   ],
   controllers: [AppController],
   providers: [],

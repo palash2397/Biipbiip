@@ -68,6 +68,12 @@ export class Company {
   address: string;
 
   @Prop({
+    required: true,
+    trim: true,
+  })
+  city: string;
+
+  @Prop({
     default: true,
   })
   isActive: boolean;
