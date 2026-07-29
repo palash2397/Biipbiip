@@ -2,7 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Company, CompanyDocument } from './schema/company.schema';
+import { CompanyCar, CompanyCarDocument } from './schema/company-car.schema';
 import { RegisterCompanyDto } from './dto/register-company.dto';
+import { AddCompanyCarDto } from './dto/add-company-car.dto';
 import { LoginCompanyDto } from './dto/login-company.dto';
 import { ApiResponse } from 'src/helpers/ApiResponse';
 import { Msg } from 'src/helpers/responseMsg';
@@ -14,6 +16,8 @@ export class CompanyService {
   constructor(
     @InjectModel(Company.name)
     private readonly companyModel: Model<CompanyDocument>,
+    @InjectModel(CompanyCar.name)
+    private readonly companyCarModel: Model<CompanyCarDocument>,
   ) {}
 
   async register(dto: RegisterCompanyDto, files: Express.Multer.File[]) {
@@ -141,6 +145,44 @@ export class CompanyService {
       return new ApiResponse(200, { companyData }, Msg.DATA_FETCHED);
     } catch (error) {
       console.log(`error while fetching company profile`, error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
+
+  async addCar(
+    companyId: string,
+    dto: AddCompanyCarDto,
+    files: {
+      vehiclePhotos?: Express.Multer.File[];
+      insuranceInvoice?: Express.Multer.File[];
+      registrationCardImage?: Express.Multer.File[];
+    },
+  ) {
+    try {
+      const company = await this.companyModel.findById(companyId);
+      if (!company) {
+        return new ApiResponse(404, {}, Msg.COMPANY_NOT_FOUND);
+      }
+
+      const vehiclePhotos =
+        files.vehiclePhotos?.map((file) => file.filename) || [];
+      const insuranceInvoice = files.insuranceInvoice?.[0]?.filename || null;
+      const registrationCardImage =
+        files.registrationCardImage?.[0]?.filename || null;
+
+      const newCar = new this.companyCarModel({
+        ...dto,
+        companyId,
+        vehiclePhotos,
+        insuranceInvoice,
+        registrationCardImage,
+      });
+
+      await newCar.save();
+
+      return new ApiResponse(201, { car: newCar }, Msg.DATA_ADDED);
+    } catch (error) {
+      console.log('Error while adding company car', error);
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }

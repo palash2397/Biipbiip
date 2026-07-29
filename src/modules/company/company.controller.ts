@@ -11,8 +11,9 @@ import {
 import { CompanyService } from './company.service';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { RegisterCompanyDto } from './dto/register-company.dto';
+import { AddCompanyCarDto } from './dto/add-company-car.dto';
 import { LoginCompanyDto } from './dto/login-company.dto';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { multerConfig } from 'src/common/middlewares/multer';
 
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
@@ -48,5 +49,33 @@ export class CompanyController {
   myProfile(@Req() req: any) {
     // console.log(req.user);
     return this.companyService.myProfile(req.user?.id);
+  }
+
+  @Post('/car')
+  @ApiBearerAuth('access-token')
+  @ApiConsumes('multipart/form-data')
+  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: 'vehiclePhotos', maxCount: 6 },
+        { name: 'insuranceInvoice', maxCount: 1 },
+        { name: 'registrationCardImage', maxCount: 1 },
+      ],
+      multerConfig('company-car'),
+    ),
+  )
+  addCar(
+    @Req() req: any,
+    @Body() dto: AddCompanyCarDto,
+    @UploadedFiles()
+    files: {
+      vehiclePhotos?: Express.Multer.File[];
+      insuranceInvoice?: Express.Multer.File[];
+      registrationCardImage?: Express.Multer.File[];
+    },
+  ) {
+    return this.companyService.addCar(req.user?.id, dto, files);
   }
 }
