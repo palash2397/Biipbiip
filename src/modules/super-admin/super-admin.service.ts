@@ -82,4 +82,26 @@ export class SuperAdminService {
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }
+
+  async allDrivers() {
+    try {
+      const drivers = await this.userModel
+        .find({
+          roles: { $in: [UserRole.DRIVER] },
+        })
+        .select('-password -otp -otpExpireAt')
+        .lean();
+
+      return new ApiResponse(
+        200,
+        {
+          drivers,
+        },
+        'Drivers fetched successfully',
+      );
+    } catch (error) {
+      console.log('error while fetching drivers', error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
 }
