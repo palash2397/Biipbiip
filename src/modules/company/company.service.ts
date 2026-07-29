@@ -189,7 +189,9 @@ export class CompanyService {
 
   async carsByCompany(companyId: string) {
     try {
-      const cars = await this.companyCarModel.find({ companyId }).lean();
+      const cars = await this.companyCarModel
+        .find({ companyId: new Types.ObjectId(companyId) })
+        .lean();
 
       if (!cars || cars.length === 0) {
         return new ApiResponse(404, {}, Msg.NO_CARS_FOUND);
