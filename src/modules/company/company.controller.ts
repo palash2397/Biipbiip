@@ -4,6 +4,8 @@ import {
   Post,
   Get,
   Req,
+  Param,
+  Query,
   UploadedFiles,
   UseGuards,
   UseInterceptors,
@@ -77,5 +79,15 @@ export class CompanyController {
     },
   ) {
     return this.companyService.addCar(req.user?.id, dto, files);
+  }
+
+  @Get('cars/search')
+  searchCarsByCity(@Query('city') city: string) {
+    return this.companyService.searchCarsByCity(city);
+  }
+
+  @Get(':id/cars')
+  getCarsByCompanyId(@Param('id') companyId: string) {
+    return this.companyService.getCarsByCompanyId(companyId);
   }
 }

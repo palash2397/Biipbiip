@@ -186,4 +186,38 @@ export class CompanyService {
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }
+
+  async getCarsByCompanyId(companyId: string) {
+    try {
+      const cars = await this.companyCarModel.find({ companyId });
+      return new ApiResponse(200, { cars }, Msg.DATA_FETCHED);
+    } catch (error) {
+      console.log('Error fetching cars by company id', error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
+
+  async searchCarsByCity(city: string) {
+    try {
+      // Find companies matching the city
+      const companies = await this.companyModel.find({
+        city: { $regex: city, $options: 'i' },
+      });
+
+      const companyIds = companies.map((c) => c._id);
+
+      // Find cars belonging to those companies
+      const cars = await this.companyCarModel
+        .find({ companyId: { $in: companyIds } })
+        .populate({
+          path: 'companyId',
+          select: 'companyName email phoneNumber city address',
+        });
+
+      return new ApiResponse(200, { cars }, Msg.DATA_FETCHED);
+    } catch (error) {
+      console.log('Error searching cars by city', error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
 }
