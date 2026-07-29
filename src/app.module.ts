@@ -16,6 +16,7 @@ import { AvailableCarsModule } from './modules/available-cars/available-cars.mod
 import { ChatModule } from './modules/chat/chat.module';
 import { RatingModule } from './modules/rating/rating.module';
 import { SuperAdminModule } from './modules/super-admin/super-admin.module';
+import { CompanyModule } from './modules/company/company.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { SuperAdminModule } from './modules/super-admin/super-admin.module';
     ChatModule,
     RatingModule,
     SuperAdminModule,
+    CompanyModule,
   ],
   controllers: [AppController],
   providers: [],
