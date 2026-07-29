@@ -57,11 +57,23 @@ export class SuperAdminService {
         ? `${process.env.BASE_URL}/api/v1/uploads/profile/${user.avatar}`
         : process.env.DEFAULT_IMAGE;
 
+      const userData = {
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        countryCode: user.countryCode,
+        phoneNumber: user.phoneNumber,
+        email: user.email,
+        roles: user.roles,
+        avatar: user.avatar,
+        gender: user.gender,
+        token,
+      };
+
       return new ApiResponse(
         200,
         {
-          token,
-          user,
+          userData,
         },
         Msg.LOGIN_SUCCESS,
       );
