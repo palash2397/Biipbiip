@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Company, CompanyDocument } from './schema/company.schema';
 import { CompanyCar, CompanyCarDocument } from './schema/company-car.schema';
 import { RegisterCompanyDto } from './dto/register-company.dto';
@@ -172,7 +172,7 @@ export class CompanyService {
 
       const newCar = new this.companyCarModel({
         ...dto,
-        companyId,
+        companyId: new Types.ObjectId(companyId),
         vehiclePhotos,
         insuranceInvoice,
         registrationCardImage,
@@ -187,10 +187,29 @@ export class CompanyService {
     }
   }
 
-  async getCarsByCompanyId(companyId: string) {
+  async carsByCompany(companyId: string) {
     try {
-      const cars = await this.companyCarModel.find({ companyId });
-      return new ApiResponse(200, { cars }, Msg.DATA_FETCHED);
+      const cars = await this.companyCarModel.find({ companyId }).lean();
+
+      if (!cars || cars.length === 0) {
+        return new ApiResponse(404, {}, Msg.NO_CARS_FOUND);
+      }
+
+      const baseUrl = process.env.BASE_URL || '';
+      const formattedCars = cars.map((car) => ({
+        ...car,
+        vehiclePhotos: car.vehiclePhotos?.map(
+          (photo) => `${baseUrl}/api/v1/uploads/company-car/${photo}`
+        ) || [],
+        insuranceInvoice: car.insuranceInvoice
+          ? `${baseUrl}/api/v1/uploads/company-car/${car.insuranceInvoice}`
+          : null,
+        registrationCardImage: car.registrationCardImage
+          ? `${baseUrl}/api/v1/uploads/company-car/${car.registrationCardImage}`
+          : null,
+      }));
+
+      return new ApiResponse(200, { cars: formattedCars }, Msg.COMPANY_CARS_FETCHED);
     } catch (error) {
       console.log('Error fetching cars by company id', error);
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
@@ -199,22 +218,37 @@ export class CompanyService {
 
   async searchCarsByCity(city: string) {
     try {
-      // Find companies matching the city
       const companies = await this.companyModel.find({
         city: { $regex: city, $options: 'i' },
       });
 
+      console.log('---->', companies);
+
       const companyIds = companies.map((c) => c._id);
 
-      // Find cars belonging to those companies
       const cars = await this.companyCarModel
         .find({ companyId: { $in: companyIds } })
         .populate({
           path: 'companyId',
           select: 'companyName email phoneNumber city address',
-        });
+        })
+        .lean();
 
-      return new ApiResponse(200, { cars }, Msg.DATA_FETCHED);
+      const baseUrl = process.env.BASE_URL || '';
+      const formattedCars = cars.map((car) => ({
+        ...car,
+        vehiclePhotos: car.vehiclePhotos?.map(
+          (photo) => `${baseUrl}/api/v1/uploads/company-car/${photo}`
+        ) || [],
+        insuranceInvoice: car.insuranceInvoice
+          ? `${baseUrl}/api/v1/uploads/company-car/${car.insuranceInvoice}`
+          : null,
+        registrationCardImage: car.registrationCardImage
+          ? `${baseUrl}/api/v1/uploads/company-car/${car.registrationCardImage}`
+          : null,
+      }));
+
+      return new ApiResponse(200, { cars: formattedCars }, Msg.DATA_FETCHED);
     } catch (error) {
       console.log('Error searching cars by city', error);
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);

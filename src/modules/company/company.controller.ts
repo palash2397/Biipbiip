@@ -15,7 +15,10 @@ import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { RegisterCompanyDto } from './dto/register-company.dto';
 import { AddCompanyCarDto } from './dto/add-company-car.dto';
 import { LoginCompanyDto } from './dto/login-company.dto';
-import { FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import {
+  FileFieldsInterceptor,
+  FilesInterceptor,
+} from '@nestjs/platform-express';
 import { multerConfig } from 'src/common/middlewares/multer';
 
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
@@ -82,12 +85,18 @@ export class CompanyController {
   }
 
   @Get('cars/search')
+  @ApiBearerAuth('access-token')
+  @Roles(UserRole.ADMIN, UserRole.DRIVER, UserRole.USER)
+  @UseGuards(JwtAuthGuard)
   searchCarsByCity(@Query('city') city: string) {
     return this.companyService.searchCarsByCity(city);
   }
 
-  @Get(':id/cars')
-  getCarsByCompanyId(@Param('id') companyId: string) {
-    return this.companyService.getCarsByCompanyId(companyId);
+  @Get('/cars')
+  @ApiBearerAuth('access-token')
+  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard)
+  getCarsByCompanyId(@Req() req: any) {
+    return this.companyService.carsByCompany(req.user?.id);
   }
 }
