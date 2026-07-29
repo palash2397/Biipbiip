@@ -102,19 +102,27 @@ export class SuperAdminService {
         if (driver.user && driver.user.avatar) {
           driver.user.avatar = `${baseUrl}/api/v1/uploads/profile/${driver.user.avatar}`;
         }
-        
-        const formatDriverImage = (fileName?: string) => 
+
+        const formatDriverImage = (fileName?: string) =>
           fileName ? `${baseUrl}/api/v1/uploads/driver/${fileName}` : undefined;
 
         driver.nationalIdFront = formatDriverImage(driver.nationalIdFront);
         driver.nationalIdBack = formatDriverImage(driver.nationalIdBack);
-        driver.driverLicenseFront = formatDriverImage(driver.driverLicenseFront);
+        driver.driverLicenseFront = formatDriverImage(
+          driver.driverLicenseFront,
+        );
         driver.driverLicenseBack = formatDriverImage(driver.driverLicenseBack);
-        driver.vehicleRegistrationFront = formatDriverImage(driver.vehicleRegistrationFront);
-        driver.vehicleRegistrationBack = formatDriverImage(driver.vehicleRegistrationBack);
-        
+        driver.vehicleRegistrationFront = formatDriverImage(
+          driver.vehicleRegistrationFront,
+        );
+        driver.vehicleRegistrationBack = formatDriverImage(
+          driver.vehicleRegistrationBack,
+        );
+
         if (driver.vehiclePhotos && driver.vehiclePhotos.length > 0) {
-          driver.vehiclePhotos = driver.vehiclePhotos.map((photo: string) => formatDriverImage(photo));
+          driver.vehiclePhotos = driver.vehiclePhotos.map(
+            (photo: string) => formatDriverImage(photo) as string,
+          );
         }
 
         return driver;
@@ -129,6 +137,56 @@ export class SuperAdminService {
       );
     } catch (error) {
       console.log('error while fetching drivers', error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
+
+  async driverById(driverId: string) {
+    try {
+      const driver = await this.driverModel
+        .findById(driverId)
+        .populate('user', '-password -otp -otpExpireAt')
+        .lean();
+
+      if (!driver) {
+        return new ApiResponse(404, {}, Msg.DRIVER_NOT_FOUND);
+      }
+
+      const baseUrl = process.env.BASE_URL;
+      if (driver.user && (driver.user as any).avatar) {
+        (driver.user as any).avatar =
+          `${baseUrl}/api/v1/uploads/profile/${(driver.user as any).avatar}`;
+      }
+
+      const formatDriverImage = (fileName?: string) =>
+        fileName ? `${baseUrl}/api/v1/uploads/driver/${fileName}` : undefined;
+
+      driver.nationalIdFront = formatDriverImage(driver.nationalIdFront);
+      driver.nationalIdBack = formatDriverImage(driver.nationalIdBack);
+      driver.driverLicenseFront = formatDriverImage(driver.driverLicenseFront);
+      driver.driverLicenseBack = formatDriverImage(driver.driverLicenseBack);
+      driver.vehicleRegistrationFront = formatDriverImage(
+        driver.vehicleRegistrationFront,
+      );
+      driver.vehicleRegistrationBack = formatDriverImage(
+        driver.vehicleRegistrationBack,
+      );
+
+      if (driver.vehiclePhotos && driver.vehiclePhotos.length > 0) {
+        driver.vehiclePhotos = driver.vehiclePhotos.map(
+          (photo: string) => formatDriverImage(photo) as string,
+        );
+      }
+
+      return new ApiResponse(
+        200,
+        {
+          driver,
+        },
+        Msg.DRIVERS_FETCHED,
+      );
+    } catch (error) {
+      console.log('error while fetching driver by id', error);
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }

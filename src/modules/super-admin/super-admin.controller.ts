@@ -1,5 +1,5 @@
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Controller, Post, Body, UseGuards, Get } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Param } from '@nestjs/common';
 import { SuperAdminService } from './super-admin.service';
 import { SuperAdminLoginDto } from '../auth/dto/superadmin-login.dto';
 
@@ -25,5 +25,12 @@ export class SuperAdminController {
   @UseGuards(JwtAuthGuard, RoleGuard)
   getAllDrivers() {
     return this.superAdminService.allDrivers();
+  }
+
+  @Get('/driver/:id')
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  getDriverById(@Param('id') id: string) {
+    return this.superAdminService.driverById(id);
   }
 }
