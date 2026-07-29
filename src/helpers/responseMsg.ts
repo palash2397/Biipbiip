@@ -190,4 +190,5 @@ export const Msg = {
   COMPANY_REGISTERED: 'Company registered successfully',
   COMPANY_EXISTS: 'Company with this email already exists',
   COMPANY_NOT_FOUND: 'Company not found',
+  COMPANY_PROFILE_FETCHED: 'Company profile fetched successfully',
 };

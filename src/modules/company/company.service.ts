@@ -18,7 +18,9 @@ export class CompanyService {
 
   async register(dto: RegisterCompanyDto, files: Express.Multer.File[]) {
     try {
-      const existingCompany = await this.companyModel.findOne({ email: dto.email });
+      const existingCompany = await this.companyModel.findOne({
+        email: dto.email,
+      });
       if (existingCompany) {
         return new ApiResponse(400, {}, Msg.COMPANY_EXISTS);
       }
@@ -39,7 +41,11 @@ export class CompanyService {
       const companyData = company.toObject();
       delete (companyData as any).password;
 
-      return new ApiResponse(201, { company: companyData }, Msg.COMPANY_REGISTERED);
+      return new ApiResponse(
+        201,
+        { company: companyData },
+        Msg.COMPANY_REGISTERED,
+      );
     } catch (error) {
       console.log('Error while registering company', error);
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
@@ -48,13 +54,18 @@ export class CompanyService {
 
   async login(dto: LoginCompanyDto) {
     try {
-      const company = await this.companyModel.findOne({ email: dto.email }).select('+password');
-      
+      const company = await this.companyModel
+        .findOne({ email: dto.email })
+        .select('+password');
+
       if (!company) {
         return new ApiResponse(404, {}, Msg.COMPANY_NOT_FOUND);
       }
 
-      const isPasswordValid = await bcrypt.compare(dto.password, company.password);
+      const isPasswordValid = await bcrypt.compare(
+        dto.password,
+        company.password,
+      );
       if (!isPasswordValid) {
         return new ApiResponse(400, {}, Msg.INVALID_CREDENTIALS);
       }
@@ -73,7 +84,7 @@ export class CompanyService {
 
       const baseUrl = process.env.BASE_URL;
       const formattedDocuments = company.documents.map(
-        (doc) => `${baseUrl}/api/v1/uploads/company/${doc}`
+        (doc) => `${baseUrl}/api/v1/uploads/company/${doc}`,
       );
 
       const companyData = {
@@ -95,6 +106,40 @@ export class CompanyService {
       return new ApiResponse(200, { companyData }, Msg.LOGIN_SUCCESS);
     } catch (error) {
       console.log('Error while company login', error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
+
+  async myProfile(id: string) {
+    try {
+      const company = await this.companyModel.findById(id);
+
+      if (!company) {
+        return new ApiResponse(404, {}, Msg.COMPANY_NOT_FOUND);
+      }
+
+      const formattedDocuments = company.documents.map(
+        (doc) => `${process.env.BASE_URL}/api/v1/uploads/company/${doc}`,
+      );
+
+      const companyData = {
+        _id: company._id,
+        adminName: company.adminName,
+        companyName: company.companyName,
+        email: company.email,
+        ownerName: company.ownerName,
+        phoneNumber: company.phoneNumber,
+        gstNumber: company.gstNumber,
+        address: company.address,
+        isActive: company.isActive,
+        isVerified: company.isVerified,
+        role: company.role,
+        documents: formattedDocuments,
+      };
+
+      return new ApiResponse(200, { companyData }, Msg.DATA_FETCHED);
+    } catch (error) {
+      console.log(`error while fetching company profile`, error);
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }
