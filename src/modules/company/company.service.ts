@@ -264,4 +264,37 @@ export class CompanyService {
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }
+
+  async carById(carId: string) {
+    try {
+      const car = await this.companyCarModel.findById(carId).populate({
+        path: 'companyId',
+        select: 'companyName email phoneNumber city address',
+      });
+
+      if (!car) {
+        return new ApiResponse(404, {}, Msg.CAR_NOT_FOUND);
+      }
+
+      const baseUrl = process.env.BASE_URL || '';
+      const formattedCar = {
+        ...car,
+        vehiclePhotos:
+          car.vehiclePhotos?.map(
+            (photo) => `${baseUrl}/api/v1/uploads/company-car/${photo}`,
+          ) || [],
+        insuranceInvoice: car.insuranceInvoice
+          ? `${baseUrl}/api/v1/uploads/company-car/${car.insuranceInvoice}`
+          : null,
+        registrationCardImage: car.registrationCardImage
+          ? `${baseUrl}/api/v1/uploads/company-car/${car.registrationCardImage}`
+          : null,
+      };
+
+      return new ApiResponse(200, { car: formattedCar }, Msg.DATA_FETCHED);
+    } catch (error) {
+      console.log('Error while fetching car by id', error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
 }

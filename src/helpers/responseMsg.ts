@@ -193,4 +193,5 @@ export const Msg = {
   COMPANY_PROFILE_FETCHED: 'Company profile fetched successfully',
   COMPANY_CARS_FETCHED: 'Company cars fetched successfully',
   NO_CARS_FOUND: 'No cars found for this company',
+  CAR_NOT_FOUND: 'Car not found',
 };

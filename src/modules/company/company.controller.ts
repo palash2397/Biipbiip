@@ -99,4 +99,12 @@ export class CompanyController {
   getCarsByCompanyId(@Req() req: any) {
     return this.companyService.carsByCompany(req.user?.id);
   }
+
+  @Get('/car/:carId')
+  @ApiBearerAuth('access-token')
+  @Roles(UserRole.ADMIN, UserRole.DRIVER, UserRole.USER)
+  @UseGuards(JwtAuthGuard)
+  getCarById(@Param('carId') carId: string) {
+    return this.companyService.carById(carId);
+  }
 }
