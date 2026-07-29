@@ -198,9 +198,10 @@ export class CompanyService {
       const baseUrl = process.env.BASE_URL || '';
       const formattedCars = cars.map((car) => ({
         ...car,
-        vehiclePhotos: car.vehiclePhotos?.map(
-          (photo) => `${baseUrl}/api/v1/uploads/company-car/${photo}`
-        ) || [],
+        vehiclePhotos:
+          car.vehiclePhotos?.map(
+            (photo) => `${baseUrl}/api/v1/uploads/company-car/${photo}`,
+          ) || [],
         insuranceInvoice: car.insuranceInvoice
           ? `${baseUrl}/api/v1/uploads/company-car/${car.insuranceInvoice}`
           : null,
@@ -209,7 +210,11 @@ export class CompanyService {
           : null,
       }));
 
-      return new ApiResponse(200, { cars: formattedCars }, Msg.COMPANY_CARS_FETCHED);
+      return new ApiResponse(
+        200,
+        { cars: formattedCars },
+        Msg.COMPANY_CARS_FETCHED,
+      );
     } catch (error) {
       console.log('Error fetching cars by company id', error);
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
@@ -234,12 +239,17 @@ export class CompanyService {
         })
         .lean();
 
+      if (!cars || cars.length === 0) {
+        return new ApiResponse(404, {}, Msg.NO_CARS_FOUND);
+      }
+
       const baseUrl = process.env.BASE_URL || '';
       const formattedCars = cars.map((car) => ({
         ...car,
-        vehiclePhotos: car.vehiclePhotos?.map(
-          (photo) => `${baseUrl}/api/v1/uploads/company-car/${photo}`
-        ) || [],
+        vehiclePhotos:
+          car.vehiclePhotos?.map(
+            (photo) => `${baseUrl}/api/v1/uploads/company-car/${photo}`,
+          ) || [],
         insuranceInvoice: car.insuranceInvoice
           ? `${baseUrl}/api/v1/uploads/company-car/${car.insuranceInvoice}`
           : null,
