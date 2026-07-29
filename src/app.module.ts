@@ -15,7 +15,7 @@ import { RideModule } from './modules/ride/ride.module';
 import { AvailableCarsModule } from './modules/available-cars/available-cars.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { RatingModule } from './modules/rating/rating.module';
-import { SuperadminModule } from './modules/superadmin/superadmin.module';
+import { SuperAdminModule } from './modules/super-admin/super-admin.module';
 
 @Module({
   imports: [
@@ -35,7 +35,7 @@ import { SuperadminModule } from './modules/superadmin/superadmin.module';
     AvailableCarsModule,
     ChatModule,
     RatingModule,
-    SuperadminModule,
+    SuperAdminModule,
   ],
   controllers: [AppController],
   providers: [],

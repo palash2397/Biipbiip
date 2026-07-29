@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { SuperadminService } from './superadmin.service';
-import { SuperadminController } from './superadmin.controller';
+import { SuperAdminService } from './super-admin.service';
+import { SuperAdminController } from './super-admin.controller';
 
 import { User, UserSchema } from '../user/schema/user.schema';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -8,9 +8,9 @@ import { Driver, DriverSchema } from '../driver/schema/driver.schema';
 import { Ride, RideSchema } from '../ride/schema/ride.schema';
 
 @Module({
-  controllers: [SuperadminController],
-  providers: [SuperadminService],
-  exports: [SuperadminService],
+  controllers: [SuperAdminController],
+  providers: [SuperAdminService],
+  exports: [SuperAdminService],
   imports: [
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
@@ -19,4 +19,4 @@ import { Ride, RideSchema } from '../ride/schema/ride.schema';
     ]),
   ],
 })
-export class SuperadminModule {}
+export class SuperAdminModule {}
