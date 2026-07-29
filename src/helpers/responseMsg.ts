@@ -185,4 +185,9 @@ export const Msg = {
   // SuperAdmin
   DRIVER_VERIFIED: 'Driver verified successfully',
   DRIVER_REJECTED: 'Driver rejected successfully',
+
+  // Company
+  COMPANY_REGISTERED: 'Company registered successfully',
+  COMPANY_EXISTS: 'Company with this email already exists',
+  COMPANY_NOT_FOUND: 'Company not found',
 };
