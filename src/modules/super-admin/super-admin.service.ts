@@ -11,6 +11,8 @@ import jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcrypt';
 
 import { SuperAdminLoginDto } from '../auth/dto/superadmin-login.dto';
+import { DriverStatusDto } from './dto/driver-status.dto';
+
 import { UserRole } from 'src/common/enums/user/role.enum';
 import { VerificationStatus } from 'src/common/enums/driver/verification-status.enum';
 
@@ -192,8 +194,30 @@ export class SuperAdminService {
     }
   }
 
-  async approveOrRejectDriver(driverId: string, status: VerificationStatus) {
+  async approveOrRejectDriver(dto: DriverStatusDto) {
     try {
+      const { driverId, status } = dto;
+
+      // const user = await this.userModel.findById(driverId);
+      // if (!user) {
+      //   return new ApiResponse(404, {}, Msg.USER_NOT_FOUND);
+      // }
+
+      const driver = await this.driverModel.findOne({ _id: driverId });
+      if (!driver) {
+        return new ApiResponse(404, {}, Msg.DRIVER_NOT_FOUND);
+      }
+
+      driver.verificationStatus = status;
+      await driver.save();
+
+      return new ApiResponse(
+        200,
+        { driver },
+        status === VerificationStatus.APPROVED
+          ? Msg.DRIVER_VERIFIED
+          : Msg.DRIVER_REJECTED,
+      );
     } catch (error) {
       console.log(`error while changing the driver status`, error);
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);

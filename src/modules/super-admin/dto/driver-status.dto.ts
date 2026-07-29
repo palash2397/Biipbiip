@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsMongoId, IsString } from 'class-validator';
+import { IsEnum, IsMongoId, IsOptional, IsString } from 'class-validator';
 import { VerificationStatus } from 'src/common/enums/driver/verification-status.enum';
 
 export class DriverStatusDto {
@@ -11,7 +11,9 @@ export class DriverStatusDto {
   })
   @IsEnum(VerificationStatus)
   status: VerificationStatus;
-  @ApiProperty()
-  @IsString()
-  reason: string;
+
+  //   @ApiProperty()
+  //   @IsOptional()
+  //   @IsString()
+  //   reason?: string;
 }

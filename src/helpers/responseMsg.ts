@@ -181,4 +181,8 @@ export const Msg = {
   WAIT_FOR_DRIVER_RESPONSE: 'Wait for driver response',
   WAIT_FOR_USER_RESPONSE: 'Wait for user response',
   NEGOTIATION_LIMIT_REACHED: 'Negotiation limit reached',
+
+  // SuperAdmin
+  DRIVER_VERIFIED: 'Driver verified successfully',
+  DRIVER_REJECTED: 'Driver rejected successfully',
 };
