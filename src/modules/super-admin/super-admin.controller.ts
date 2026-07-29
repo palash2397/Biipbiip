@@ -1,6 +1,7 @@
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Controller, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { SuperAdminService } from './super-admin.service';
+import { SuperAdminLoginDto } from '../auth/dto/superadmin-login.dto';
 
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 
@@ -10,10 +11,11 @@ import { UserRole } from 'src/common/enums/user/role.enum';
 
 @ApiTags('Super Admin')
 @Controller('super-admin')
-@UseGuards(JwtAuthGuard)
-@UseGuards(RoleGuard)
-@Roles(UserRole.SUPERADMIN)
-@ApiBearerAuth()
 export class SuperAdminController {
   constructor(private readonly superAdminService: SuperAdminService) {}
+
+  @Post('/login')
+  login(@Body() dto: SuperAdminLoginDto) {
+    return this.superAdminService.login(dto);
+  }
 }

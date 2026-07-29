@@ -27,9 +27,4 @@ export class AuthController {
   resendOtp(@Body() dto: ResendOtpDto) {
     return this.authService.resendOtp(dto);
   }
-
-  @Post('/superAdminLogin')
-  superAdminLogin(@Body() dto: SuperAdminLoginDto) {
-    return this.authService.superAdminLogin(dto);
-  }
 }

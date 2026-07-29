@@ -12,9 +12,6 @@ import { User, UserDocument } from 'src/modules/user/schema/user.schema';
 import { SendOtpDto } from './dto/send-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { ResendOtpDto } from './dto/resend-otp.dto';
-import { SuperAdminLoginDto } from './dto/superadmin-login.dto';
-import { UserRole } from 'src/common/enums/user/role.enum';
-import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -163,57 +160,6 @@ export class AuthService {
     } catch (error) {
       console.log('error while resending otp', error);
 
-      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
-    }
-  }
-
-  async superAdminLogin(dto: SuperAdminLoginDto) {
-    try {
-      const user = await this.userModel.findOne({
-        email: dto.email,
-        roles: { $in: [UserRole.SUPERADMIN] },
-      });
-
-      if (!user) {
-        return new ApiResponse(400, {}, Msg.USER_NOT_FOUND);
-      }
-
-      if (!user.password) {
-        return new ApiResponse(400, {}, 'Invalid credentials');
-      }
-
-      const isPasswordValid = await bcrypt.compare(dto.password, user.password);
-      
-      if (!isPasswordValid) {
-        return new ApiResponse(400, {}, 'Invalid credentials');
-      }
-
-      const token = jwt.sign(
-        {
-          id: user._id.toString(),
-          roles: user.roles,
-          phoneNumber: user.phoneNumber,
-        },
-        process.env.JWT_SECRET!,
-        {
-          expiresIn: '10d',
-        },
-      );
-
-      user.avatar = user.avatar
-        ? `${process.env.BASE_URL}/api/v1/uploads/profile/${user.avatar}`
-        : process.env.DEFAULT_IMAGE;
-
-      return new ApiResponse(
-        200,
-        {
-          token,
-          user,
-        },
-        'Login successful',
-      );
-    } catch (error) {
-      console.log('error while super admin login', error);
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }
