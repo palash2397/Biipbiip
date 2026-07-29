@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '../user/schema/user.schema';
+import { Driver, DriverDocument } from '../driver/schema/driver.schema';
 import { Model } from 'mongoose';
 
 import { ApiResponse } from 'src/helpers/ApiResponse';
@@ -17,6 +18,8 @@ export class SuperAdminService {
   constructor(
     @InjectModel(User.name)
     private readonly userModel: Model<UserDocument>,
+    @InjectModel(Driver.name)
+    private readonly driverModel: Model<DriverDocument>,
   ) {}
 
   async login(dto: SuperAdminLoginDto) {
@@ -85,19 +88,21 @@ export class SuperAdminService {
 
   async allDrivers() {
     try {
-      const drivers = await this.userModel
-        .find({
-          roles: { $in: [UserRole.DRIVER] },
-        })
-        .select('-password -otp -otpExpireAt')
+      const drivers = await this.driverModel
+        .find()
+        .populate('user', '-password -otp -otpExpireAt')
         .lean();
+
+      if (!drivers || drivers.length == 0) {
+        return new ApiResponse(404, {}, Msg.DATA_NOT_FOUND);
+      }
 
       return new ApiResponse(
         200,
         {
           drivers,
         },
-        'Drivers fetched successfully',
+        Msg.DRIVERS_FETCHED,
       );
     } catch (error) {
       console.log('error while fetching drivers', error);

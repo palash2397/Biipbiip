@@ -96,6 +96,7 @@ export const Msg = {
   DRIVER_NOT_AVAILABLE: 'Driver is not available',
   DRIVER_NOT_FOUND: 'Driver not found',
   DRIVER_NOT_ASSIGNED: 'Driver not assigned',
+  DRIVERS_FETCHED: 'Drivers fetched successfully',
 
   // Ride type
   RIDE_TYPE_CREATED: 'Ride type created successfully',
