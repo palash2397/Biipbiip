@@ -11,6 +11,7 @@ import { UserRole } from 'src/common/enums/user/role.enum';
 
 @ApiTags('Super Admin')
 @Controller('super-admin')
+@Roles(UserRole.SUPERADMIN)
 export class SuperAdminController {
   constructor(private readonly superAdminService: SuperAdminService) {}
 
