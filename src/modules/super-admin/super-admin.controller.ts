@@ -11,6 +11,7 @@ import {
 import { SuperAdminService } from './super-admin.service';
 import { SuperAdminLoginDto } from '../auth/dto/superadmin-login.dto';
 import { DriverStatusDto } from './dto/driver-status.dto';
+import { CompanyStatusDto } from './dto/company-status.dto';
 
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 
@@ -53,7 +54,7 @@ export class SuperAdminController {
   @Patch('/company/update/status')
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard, RoleGuard)
-  updateCompanyStatus(@Body() dto: { id: string }) {
+  updateCompanyStatus(@Body() dto: CompanyStatusDto) {
     return this.superAdminService.changeCompanyStatus(dto.id);
   }
 }
