@@ -235,15 +235,15 @@ export class SuperAdminService {
         return new ApiResponse(404, {}, Msg.COMPANY_NOT_FOUND);
       }
 
-      company.isActive = !company.isActive;
+      company.isVerified = company.isVerified ? false : true;
       await company.save();
 
       return new ApiResponse(
         200,
         { company },
-        company.isActive
-          ? 'Company activated successfully'
-          : 'Company deactivated successfully',
+        company.isVerified
+          ? 'Company verified successfully'
+          : 'Company unverified successfully',
       );
     } catch (error) {
       console.log(`error while changing the company status`, error);
