@@ -250,4 +250,32 @@ export class SuperAdminService {
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }
+
+  async allCompanies() {
+    try {
+      const company = await this.companyModel.find({}).select('-password');
+      if (!company || company.length == 0) {
+        return new ApiResponse(404, {}, Msg.DATA_NOT_FOUND);
+      }
+
+      const baseUrl = process.env.BASE_URL || '';
+      const formattedCompanies = company.map((company: any) => {
+        if (company.documents && company.documents.length > 0) {
+          company.documents = company.documents.map(
+            (doc: string) => `${baseUrl}/api/v1/uploads/company/${doc}`,
+          );
+        }
+        return company;
+      });
+
+      return new ApiResponse(
+        200,
+        { companies: formattedCompanies },
+        Msg.DATA_FETCHED,
+      );
+    } catch (error) {
+      console.log(`error while fetching companies`, error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
 }
