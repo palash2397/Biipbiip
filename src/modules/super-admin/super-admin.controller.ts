@@ -49,4 +49,11 @@ export class SuperAdminController {
   updateDriverStatus(@Body() dto: DriverStatusDto) {
     return this.superAdminService.approveOrRejectDriver(dto);
   }
+
+  @Patch('/company/update/status')
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  updateCompanyStatus(@Body() dto: { id: string }) {
+    return this.superAdminService.changeCompanyStatus(dto.id);
+  }
 }

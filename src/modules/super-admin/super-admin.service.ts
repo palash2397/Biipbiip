@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+
 import { User, UserDocument } from '../user/schema/user.schema';
 import { Driver, DriverDocument } from '../driver/schema/driver.schema';
-import { Model } from 'mongoose';
+import { Company, CompanyDocument } from '../company/schema/company.schema';
 
 import { ApiResponse } from 'src/helpers/ApiResponse';
 import { Msg } from 'src/helpers/responseMsg';
@@ -23,6 +25,8 @@ export class SuperAdminService {
     private readonly userModel: Model<UserDocument>,
     @InjectModel(Driver.name)
     private readonly driverModel: Model<DriverDocument>,
+    @InjectModel(Company.name)
+    private readonly companyModel: Model<CompanyDocument>,
   ) {}
 
   async login(dto: SuperAdminLoginDto) {
@@ -220,6 +224,29 @@ export class SuperAdminService {
       );
     } catch (error) {
       console.log(`error while changing the driver status`, error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
+
+  async changeCompanyStatus(id: string) {
+    try {
+      const company = await this.companyModel.findOne({ _id: id });
+      if (!company) {
+        return new ApiResponse(404, {}, Msg.COMPANY_NOT_FOUND);
+      }
+
+      company.isActive = !company.isActive;
+      await company.save();
+
+      return new ApiResponse(
+        200,
+        { company },
+        company.isActive
+          ? 'Company activated successfully'
+          : 'Company deactivated successfully',
+      );
+    } catch (error) {
+      console.log(`error while changing the company status`, error);
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }
