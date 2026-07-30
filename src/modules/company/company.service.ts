@@ -335,7 +335,8 @@ export class CompanyService {
       if (dto.noOfSeats) car.noOfSeats = dto.noOfSeats;
       if (dto.noOfDoors) car.noOfDoors = dto.noOfDoors;
       if (dto.mileage) car.mileage = dto.mileage;
-      if (dto.airConditioning !== undefined) car.airConditioning = dto.airConditioning;
+      if (dto.airConditioning !== undefined)
+        car.airConditioning = dto.airConditioning;
       if (dto.bluetooth !== undefined) car.bluetooth = dto.bluetooth;
       if (dto.usb !== undefined) car.usb = dto.usb;
       if (dto.gps !== undefined) car.gps = dto.gps;
@@ -348,7 +349,10 @@ export class CompanyService {
       if (files?.insuranceInvoice && files.insuranceInvoice.length > 0) {
         car.insuranceInvoice = files.insuranceInvoice[0].filename;
       }
-      if (files?.registrationCardImage && files.registrationCardImage.length > 0) {
+      if (
+        files?.registrationCardImage &&
+        files.registrationCardImage.length > 0
+      ) {
         car.registrationCardImage = files.registrationCardImage[0].filename;
       }
 

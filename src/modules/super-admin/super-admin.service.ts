@@ -253,7 +253,10 @@ export class SuperAdminService {
 
   async allCompanies() {
     try {
-      const company = await this.companyModel.find({}).select('-password');
+      const company = await this.companyModel
+        .find({})
+        .select('-password')
+        .lean();
       if (!company || company.length == 0) {
         return new ApiResponse(404, {}, Msg.DATA_NOT_FOUND);
       }

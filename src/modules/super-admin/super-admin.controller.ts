@@ -57,4 +57,11 @@ export class SuperAdminController {
   updateCompanyStatus(@Body() dto: CompanyStatusDto) {
     return this.superAdminService.changeCompanyStatus(dto.id);
   }
+
+  @Get('/all/companies')
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  getAllCompanies() {
+    return this.superAdminService.allCompanies();
+  }
 }
