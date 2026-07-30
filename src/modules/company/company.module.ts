@@ -14,5 +14,12 @@ import { CompanyController } from './company.controller';
   ],
   controllers: [CompanyController],
   providers: [CompanyService],
+  exports: [
+    MongooseModule.forFeature([{ name: Company.name, schema: CompanySchema }]),
+    MongooseModule.forFeature([
+      { name: CompanyCar.name, schema: CompanyCarSchema },
+    ]),
+    CompanyService,
+  ],
 })
 export class CompanyModule {}
