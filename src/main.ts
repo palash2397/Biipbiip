@@ -1,14 +1,22 @@
+//  /$$$$$$$  /$$$$$$ /$$$$$$ /$$$$$$$  /$$$$$$$  /$$$$$$ /$$$$$$ /$$$$$$$
+// | $$__  $$|_  $$_/|_  $$_/| $$__  $$| $$__  $$|_  $$_/|_  $$_/| $$__  $$
+// | $$  \ $$  | $$    | $$  | $$  \ $$| $$  \ $$  | $$    | $$  | $$  \ $$
+// | $$$$$$$   | $$    | $$  | $$$$$$$/| $$$$$$$   | $$    | $$  | $$$$$$$/
+// | $$__  $$  | $$    | $$  | $$____/ | $$__  $$  | $$    | $$  | $$____/
+// | $$  \ $$  | $$    | $$  | $$      | $$  \ $$  | $$    | $$  | $$
+// | $$$$$$$/ /$$$$$$ /$$$$$$| $$      | $$$$$$$/ /$$$$$$ /$$$$$$| $$
+// |_______/ |______/|______/|__/      |_______/ |______/|______/|__/
+
 import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { IoAdapter } from '@nestjs/platform-socket.io';
+import { join } from 'path';
+import morgan from 'morgan';
 
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
-import { join } from 'path';
-
-import morgan from 'morgan';
 
 import constants from './constants';
 const { SWAGGER, Global } = constants;
