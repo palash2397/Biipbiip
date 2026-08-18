@@ -21,6 +21,7 @@ import { ValidationPipe } from '@nestjs/common';
 import constants from './constants';
 const { SWAGGER, Global } = constants;
 
+// main
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
