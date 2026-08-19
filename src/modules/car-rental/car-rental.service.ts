@@ -19,10 +19,10 @@ import {
 } from '../company/schema/company-car.schema';
 
 import { Company, CompanyDocument } from '../company/schema/company.schema';
-
 import { User, UserDocument } from '../user/schema/user.schema';
 
 import { CreateCarRentalBookingDto } from './dto/create-rental-booking.dto';
+import { UpdateRentalBookingStatusDto } from './dto/update-rental-booking-status.dto';
 
 @Injectable()
 export class CarRentalService {
@@ -216,6 +216,58 @@ export class CarRentalService {
       );
     } catch (error) {
       console.log('Error while fetching company rental bookings:', error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
+
+  async updateBookingStatus(userId: string, dto: UpdateRentalBookingStatusDto) {
+    try {
+      const company = await this.companyModel
+        .findOne({
+          _id: userId,
+        })
+        .select('_id')
+        .lean();
+
+      if (!company) {
+        return new ApiResponse(404, {}, Msg.COMPANY_NOT_FOUND);
+      }
+
+      const booking = await this.carRentalBookingModel.findOne({
+        _id: dto.bookingId,
+        company: company._id,
+      });
+
+      if (!booking) {
+        return new ApiResponse(404, {}, Msg.RENTAL_BOOKING_NOT_FOUND);
+      }
+
+      if (booking.status !== CarRentalBookingStatus.PENDING) {
+        return new ApiResponse(400, {}, Msg.RENTAL_BOOKING_ALREADY_PROCESSED);
+      }
+
+      if (dto.status === CarRentalBookingStatus.REJECTED) {
+        if (!dto.rejectionReason) {
+          return new ApiResponse(400, {}, Msg.REJECTION_REASON_REQUIRED);
+        }
+
+        booking.rejectionReason = dto.rejectionReason;
+      }
+
+      booking.status = dto.status;
+
+      await booking.save();
+
+      return new ApiResponse(
+        200,
+        {
+          booking,
+        },
+        Msg.RENTAL_BOOKING_STATUS_UPDATED,
+      );
+    } catch (error) {
+      console.log('Error while updating rental booking status:', error);
+
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }

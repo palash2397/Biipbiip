@@ -204,6 +204,10 @@ export const Msg = {
   RENTAL_BOOKING_FETCHED: 'Rental booking fetched successfully',
   RENTAL_BOOKING_ALREADY_EXISTS: 'Rental booking already exists',
   INVALID_RENTAL_DATES: 'Invalid rental dates',
+  RENTAL_BOOKING_ALREADY_PROCESSED: 'Rental booking already processed',
+  REJECTION_REASON_REQUIRED: 'Rejection reason is required',
+  RENTAL_BOOKING_STATUS_UPDATED: 'Rental booking status updated successfully',
+  RENTAL_BOOKING_CANCELLED: 'Rental booking cancelled successfully',
 
   // CAR
   CAR_NOT_AVAILABLE: 'Car is not available for rent',
