@@ -18,6 +18,7 @@ import { RatingModule } from './modules/rating/rating.module';
 import { SuperAdminModule } from './modules/super-admin/super-admin.module';
 import { CompanyModule } from './modules/company/company.module';
 import { CompanyCarsModule } from './modules/company-cars/company-cars.module';
+import { CarRentalModule } from './modules/car-rental/car-rental.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { CompanyCarsModule } from './modules/company-cars/company-cars.module';
     SuperAdminModule,
     CompanyModule,
     CompanyCarsModule,
+    CarRentalModule,
   ],
   controllers: [AppController],
   providers: [],
