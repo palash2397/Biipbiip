@@ -10,16 +10,14 @@ export class CreateCarRentalBookingDto {
   carId: string;
 
   @ApiProperty({
-    example: '25-08-2026',
+    example: '2026-08-25',
   })
-  @IsDateString()
   @IsNotEmpty()
   pickupDate: string;
 
   @ApiProperty({
-    example: '28-08-2026',
+    example: '2026-08-28',
   })
-  @IsDateString()
   @IsNotEmpty()
   returnDate: string;
 }

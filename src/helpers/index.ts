@@ -27,3 +27,11 @@ export const deleteOldFile = (folder: string, file?: string): void => {
     console.log('Error while deleting file --------->', error);
   }
 };
+
+export const parseDate = (dateStr: string) => {
+  if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) {
+    const [day, month, year] = dateStr.split('-');
+    return new Date(`${year}-${month}-${day}`);
+  }
+  return new Date(dateStr);
+};

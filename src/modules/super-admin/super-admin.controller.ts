@@ -14,7 +14,6 @@ import { DriverStatusDto } from './dto/driver-status.dto';
 import { CompanyStatusDto } from './dto/company-status.dto';
 
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
-
 import { RoleGuard } from '../auth/roles/roles.guard';
 import { Roles } from '../auth/roles/roles.decorator';
 import { UserRole } from 'src/common/enums/user/role.enum';

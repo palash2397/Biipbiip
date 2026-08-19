@@ -5,6 +5,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { ApiResponse } from 'src/helpers/ApiResponse';
 import { Msg } from 'src/helpers/responseMsg';
 
+import { parseDate } from 'src/helpers/index';
+
 import { CarRentalBookingStatus } from 'src/common/enums/company/car-rental-booking-status.enum';
 
 import {
@@ -15,6 +17,9 @@ import {
   CompanyCar,
   CompanyCarDocument,
 } from '../company/schema/company-car.schema';
+
+import { Company, CompanyDocument } from '../company/schema/company.schema';
+
 import { User, UserDocument } from '../user/schema/user.schema';
 
 import { CreateCarRentalBookingDto } from './dto/create-rental-booking.dto';
@@ -27,12 +32,16 @@ export class CarRentalService {
     @InjectModel(CompanyCar.name)
     private companyCarModel: Model<CompanyCarDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(Company.name) private companyModel: Model<CompanyDocument>,
   ) {}
 
   async createBooking(userId: string, dto: CreateCarRentalBookingDto) {
     try {
-      const pickupDate = new Date(dto.pickupDate);
-      const returnDate = new Date(dto.returnDate);
+      const pickupDate = parseDate(dto.pickupDate);
+      const returnDate = parseDate(dto.returnDate);
+
+      console.log('pickupDate', pickupDate);
+      console.log('returnDate', returnDate);
 
       if (pickupDate >= returnDate) {
         return new ApiResponse(400, {}, Msg.INVALID_RENTAL_DATES);
@@ -52,6 +61,8 @@ export class CarRentalService {
       }
 
       const company: any = car.companyId;
+
+      console.log('------------------', company);
 
       if (!company) {
         return new ApiResponse(404, {}, Msg.COMPANY_NOT_FOUND);
@@ -159,6 +170,52 @@ export class CarRentalService {
     } catch (error) {
       console.log('Error while fetching rental bookings:', error);
 
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
+
+  async companyBookings(id: string) {
+    try {
+      const company = await this.companyModel
+        .findById(id)
+        .select('_id companyName email phoneNumber city address')
+        .lean();
+
+      if (!company) {
+        return new ApiResponse(404, {}, Msg.COMPANY_NOT_FOUND);
+      }
+
+      const bookings = await this.carRentalBookingModel
+        .find({
+          company: company._id,
+        })
+        .populate({
+          path: 'user',
+          select: 'firstName lastName email phoneNumber countryCode avatar',
+        })
+        .populate({
+          path: 'car',
+          select:
+            'carName vehicleBrand vehicleModel manufacturingYear color perDayCharge fuelType transmission noOfSeats noOfDoors vehiclePhotos',
+        })
+        .sort({
+          createdAt: -1,
+        })
+        .lean();
+
+      if (!bookings || bookings.length == 0) {
+        return new ApiResponse(404, {}, Msg.RENTAL_BOOKING_NOT_FOUND);
+      }
+
+      return new ApiResponse(
+        200,
+        {
+          bookings,
+        },
+        Msg.RENTAL_BOOKING_FETCHED,
+      );
+    } catch (error) {
+      console.log('Error while fetching company rental bookings:', error);
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }
