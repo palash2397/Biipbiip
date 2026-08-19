@@ -78,7 +78,7 @@ export class CompanyService {
       const token = jwt.sign(
         {
           id: company._id.toString(),
-          role: company.role,
+          roles: [company.role],
           email: company.email,
         },
         process.env.JWT_SECRET!,

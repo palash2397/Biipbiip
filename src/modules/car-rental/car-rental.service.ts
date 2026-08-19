@@ -160,6 +160,15 @@ export class CarRentalService {
         return new ApiResponse(404, {}, Msg.RENTAL_BOOKING_NOT_FOUND);
       }
 
+      const baseUrl = process.env.BASE_URL || '';
+      bookings.forEach((booking: any) => {
+        if (booking.car && booking.car.vehiclePhotos) {
+          booking.car.vehiclePhotos = booking.car.vehiclePhotos.map(
+            (photo: string) => `${baseUrl}/api/v1/uploads/company-car/${photo}`,
+          );
+        }
+      });
+
       return new ApiResponse(
         200,
         {
@@ -206,6 +215,15 @@ export class CarRentalService {
       if (!bookings || bookings.length == 0) {
         return new ApiResponse(404, {}, Msg.RENTAL_BOOKING_NOT_FOUND);
       }
+
+      const baseUrl = process.env.BASE_URL || '';
+      bookings.forEach((booking: any) => {
+        if (booking.car && booking.car.vehiclePhotos) {
+          booking.car.vehiclePhotos = booking.car.vehiclePhotos.map(
+            (photo: string) => `${baseUrl}/api/v1/uploads/company-car/${photo}`,
+          );
+        }
+      });
 
       return new ApiResponse(
         200,
