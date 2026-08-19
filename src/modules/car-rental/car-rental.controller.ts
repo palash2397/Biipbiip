@@ -13,4 +13,9 @@ export class CarRentalController {
   async createBooking(@Req() req: any, @Body() dto: CreateCarRentalBookingDto) {
     return this.carRentalService.createBooking(req.user.userId, dto);
   }
+
+  @Get('bookings')
+  async getMyBookings(@Req() req: any) {
+    return this.carRentalService.myBookings(req.user.userId);
+  }
 }

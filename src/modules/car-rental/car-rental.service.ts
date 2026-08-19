@@ -124,4 +124,42 @@ export class CarRentalService {
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }
+
+  async myBookings(userId: string) {
+    try {
+      const bookings = await this.carRentalBookingModel
+        .find({
+          user: userId,
+        })
+        .populate({
+          path: 'company',
+          select: 'companyName email phoneNumber city address',
+        })
+        .populate({
+          path: 'car',
+          select:
+            'carName vehicleBrand vehicleModel manufacturingYear color perDayCharge fuelType transmission noOfSeats noOfDoors mileage airConditioning bluetooth usb gps description vehiclePhotos',
+        })
+        .sort({
+          createdAt: -1,
+        })
+        .lean();
+
+      if (!bookings || bookings.length == 0) {
+        return new ApiResponse(404, {}, Msg.RENTAL_BOOKING_NOT_FOUND);
+      }
+
+      return new ApiResponse(
+        200,
+        {
+          bookings,
+        },
+        Msg.DATA_FETCHED,
+      );
+    } catch (error) {
+      console.log('Error while fetching rental bookings:', error);
+
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
 }
