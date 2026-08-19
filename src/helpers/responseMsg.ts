@@ -190,8 +190,21 @@ export const Msg = {
   COMPANY_REGISTERED: 'Company registered successfully',
   COMPANY_EXISTS: 'Company with this email already exists',
   COMPANY_NOT_FOUND: 'Company not found',
+  COMPANY_NOT_AVAILABLE: 'Company is not available for rent',
   COMPANY_PROFILE_FETCHED: 'Company profile fetched successfully',
   COMPANY_CARS_FETCHED: 'Company cars fetched successfully',
   NO_CARS_FOUND: 'No cars found for this company',
   CAR_NOT_FOUND: 'Car not found',
+
+  // RENTAL
+  RENTAL_BOOKING_CREATED: 'Rental booking created successfully',
+  RENTAL_BOOKING_NOT_FOUND: 'Rental booking not found',
+  RENTAL_BOOKING_UPDATED: 'Rental booking updated successfully',
+  RENTAL_BOOKING_DELETED: 'Rental booking deleted successfully',
+  RENTAL_BOOKING_FETCHED: 'Rental booking fetched successfully',
+  RENTAL_BOOKING_ALREADY_EXISTS: 'Rental booking already exists',
+  INVALID_RENTAL_DATES: 'Invalid rental dates',
+
+  // CAR
+  CAR_NOT_AVAILABLE: 'Car is not available for rent',
 };

@@ -8,12 +8,19 @@ import {
   CompanyCarSchema,
 } from '../company/schema/company-car.schema';
 import { Company, CompanySchema } from '../company/schema/company.schema';
+import { User, UserSchema } from '../user/schema/user.schema';
+import {
+  CarRentalBooking,
+  CarRentalBookingSchema,
+} from './schema/car-rental-booking.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: CompanyCar.name, schema: CompanyCarSchema },
       { name: Company.name, schema: CompanySchema },
+      { name: User.name, schema: UserSchema },
+      { name: CarRentalBooking.name, schema: CarRentalBookingSchema },
     ]),
   ],
   controllers: [CarRentalController],
