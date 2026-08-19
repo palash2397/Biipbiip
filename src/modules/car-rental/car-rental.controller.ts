@@ -27,13 +27,13 @@ export class CarRentalController {
   constructor(private readonly carRentalService: CarRentalService) {}
 
   @Post('book')
-  @Roles(UserRole.USER, UserRole.SUPERADMIN)
+  @Roles(UserRole.USER, UserRole.PASSENGER, UserRole.SUPERADMIN)
   async createBooking(@Req() req: any, @Body() dto: CreateCarRentalBookingDto) {
     return this.carRentalService.createBooking(req.user.id, dto);
   }
 
   @Get('bookings')
-  @Roles(UserRole.USER, UserRole.SUPERADMIN)
+  @Roles(UserRole.USER, UserRole.PASSENGER, UserRole.SUPERADMIN)
   async getMyBookings(@Req() req: any) {
     return this.carRentalService.myBookings(req.user.id);
   }
