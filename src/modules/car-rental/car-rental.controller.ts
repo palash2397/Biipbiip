@@ -3,13 +3,16 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { CarRentalService } from './car-rental.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+
 import { CreateCarRentalBookingDto } from './dto/create-rental-booking.dto';
+import { UpdateRentalBookingStatusDto } from './dto/update-rental-booking-status.dto';
 
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { RoleGuard } from '../auth/roles/roles.guard';
@@ -36,8 +39,17 @@ export class CarRentalController {
   }
 
   @Get('company/bookings')
-  @Roles(UserRole.USER, UserRole.SUPERADMIN)
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
   async getCompanyBookings(@Req() req: any) {
     return this.carRentalService.companyBookings(req.user.id);
+  }
+
+  @Patch('company/bookings/status')
+  @Roles(UserRole.ADMIN, UserRole.SUPERADMIN)
+  async updateBookingStatus(
+    @Req() req: any,
+    @Body() dto: UpdateRentalBookingStatusDto,
+  ) {
+    return this.carRentalService.updateBookingStatus(req.user.id, dto);
   }
 }
