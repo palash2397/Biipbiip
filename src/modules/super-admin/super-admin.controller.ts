@@ -77,4 +77,11 @@ export class SuperAdminController {
   getAllCars() {
     return this.superAdminService.allCompaniesCars();
   }
+
+  @Patch('/car/:id/status')
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  toggleCarVerification(@Param() dto: { id: string }) {
+    return this.superAdminService.carVerificaton(dto.id);
+  }
 }
