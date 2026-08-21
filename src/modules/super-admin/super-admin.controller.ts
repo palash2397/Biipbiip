@@ -63,4 +63,11 @@ export class SuperAdminController {
   getAllCompanies() {
     return this.superAdminService.allCompanies();
   }
+
+  @Get('/dashboard-stats')
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  getDashboardStats() {
+    return this.superAdminService.dashboardStats();
+  }
 }

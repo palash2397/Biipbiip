@@ -5,6 +5,17 @@ import { Model } from 'mongoose';
 import { User, UserDocument } from '../user/schema/user.schema';
 import { Driver, DriverDocument } from '../driver/schema/driver.schema';
 import { Company, CompanyDocument } from '../company/schema/company.schema';
+import {
+  CompanyCar,
+  CompanyCarDocument,
+} from '../company/schema/company-car.schema';
+import { Ride, RideDocument } from '../ride/schema/ride.schema';
+import {
+  CarRentalBooking,
+  CarRentalBookingDocument,
+} from '../car-rental/schema/car-rental-booking.schema';
+import { RideStatus } from 'src/common/enums/ride/ride-enum';
+import { CarRentalBookingStatus } from 'src/common/enums/company/car-rental-booking-status.enum';
 
 import { ApiResponse } from 'src/helpers/ApiResponse';
 import { Msg } from 'src/helpers/responseMsg';
@@ -27,6 +38,12 @@ export class SuperAdminService {
     private readonly driverModel: Model<DriverDocument>,
     @InjectModel(Company.name)
     private readonly companyModel: Model<CompanyDocument>,
+    @InjectModel(CompanyCar.name)
+    private readonly companyCarModel: Model<CompanyCarDocument>,
+    @InjectModel(Ride.name)
+    private readonly rideModel: Model<RideDocument>,
+    @InjectModel(CarRentalBooking.name)
+    private readonly carRentalBookingModel: Model<CarRentalBookingDocument>,
   ) {}
 
   async login(dto: SuperAdminLoginDto) {
@@ -89,6 +106,63 @@ export class SuperAdminService {
       );
     } catch (error) {
       console.log('error while super admin login', error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
+
+  async dashboardStats() {
+    try {
+      const [
+        totalCompanies,
+        verifiedCompanies,
+        pendingVerificationCompanies,
+        totalCarsListed,
+        totalDrivers,
+        totalRides,
+        completedRides,
+        completedCarRentals,
+      ] = await Promise.all([
+        this.companyModel.countDocuments(),
+        this.companyModel.countDocuments({ isVerified: true }),
+        this.companyModel.countDocuments({ isVerified: false }),
+        this.companyCarModel.countDocuments(),
+        this.driverModel.countDocuments(),
+        this.rideModel.countDocuments({ status: RideStatus.COMPLETED }),
+        this.rideModel
+          .find({ status: RideStatus.COMPLETED })
+          .select('currentFare')
+          .lean(),
+        this.carRentalBookingModel
+          .find({ status: CarRentalBookingStatus.COMPLETED })
+          .select('totalAmount')
+          .lean(),
+      ]);
+
+      const rideRevenue = completedRides.reduce(
+        (sum: number, ride: any) => sum + (ride.currentFare || 0),
+        0,
+      );
+      const rentalRevenue = completedCarRentals.reduce(
+        (sum: number, booking: any) => sum + (booking.totalAmount || 0),
+        0,
+      );
+      const platformRevenue = rideRevenue + rentalRevenue;
+
+      return new ApiResponse(
+        200,
+        {
+          totalCompanies,
+          verifiedCompanies,
+          pendingVerificationCompanies,
+          totalCarsListed,
+          totalDrivers,
+          totalRides,
+          platformRevenue,
+        },
+        Msg.DASHBOARD_STATS_FETCHED,
+      );
+    } catch (error) {
+      console.log('error while fetching dashboard stats', error);
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }

@@ -211,4 +211,7 @@ export const Msg = {
 
   // CAR
   CAR_NOT_AVAILABLE: 'Car is not available for rent',
+
+  // DASHBOARD
+  DASHBOARD_STATS_FETCHED: 'Dashboard stats fetched successfully',
 };

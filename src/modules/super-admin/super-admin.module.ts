@@ -7,6 +7,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Driver, DriverSchema } from '../driver/schema/driver.schema';
 import { Ride, RideSchema } from '../ride/schema/ride.schema';
 import { Company, CompanySchema } from '../company/schema/company.schema';
+import {
+  CompanyCar,
+  CompanyCarSchema,
+} from '../company/schema/company-car.schema';
+import {
+  CarRentalBooking,
+  CarRentalBookingSchema,
+} from '../car-rental/schema/car-rental-booking.schema';
 
 @Module({
   controllers: [SuperAdminController],
@@ -18,6 +26,8 @@ import { Company, CompanySchema } from '../company/schema/company.schema';
       { name: Driver.name, schema: DriverSchema },
       { name: Ride.name, schema: RideSchema },
       { name: Company.name, schema: CompanySchema },
+      { name: CompanyCar.name, schema: CompanyCarSchema },
+      { name: CarRentalBooking.name, schema: CarRentalBookingSchema },
     ]),
   ],
 })
