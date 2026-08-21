@@ -70,4 +70,11 @@ export class SuperAdminController {
   getDashboardStats() {
     return this.superAdminService.dashboardStats();
   }
+
+  @Get('/all/cars')
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  getAllCars() {
+    return this.superAdminService.allCompaniesCars();
+  }
 }

@@ -355,4 +355,59 @@ export class SuperAdminService {
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }
+
+  async allCompaniesCars() {
+    try {
+      const data = await this.companyCarModel
+        .find({})
+        .populate('companyId', 'adminName companyName email')
+        .lean();
+
+      if (!data || data.length == 0) {
+        return new ApiResponse(404, {}, Msg.DATA_NOT_FOUND);
+      }
+
+      const formattedCompaniesCar = data.map((car: any) => {
+        if (car.vehiclePhotos && car.vehiclePhotos.length > 0) {
+          car.vehiclePhotos = car.vehiclePhotos.map(
+            (photo: string) =>
+              `${process.env.BASE_URL}/api/v1/uploads/company-car/${photo}`,
+          );
+        }
+        return car;
+      });
+
+      return new ApiResponse(
+        200,
+        { companiesCar: formattedCompaniesCar },
+        Msg.CARS_FETCHED,
+      );
+    } catch (error) {
+      console.log(`error while getting companies car`, error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
+
+  async carVerificaton(id: string) {
+    try {
+      const car = await this.companyCarModel.findOne({ _id: id });
+      if (!car) {
+        return new ApiResponse(404, {}, Msg.DATA_NOT_FOUND);
+      }
+
+      car.isVerified = car.isVerified ? false : true;
+      await car.save();
+
+      return new ApiResponse(
+        200,
+        { car },
+        car.isVerified
+          ? 'Car verified successfully'
+          : 'Car unverified successfully',
+      );
+    } catch (error) {
+      console.log(`error while car verification`, error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
 }

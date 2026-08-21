@@ -73,6 +73,9 @@ export class CompanyCar {
 
   @Prop({ default: null })
   registrationCardImage?: string;
+
+  @Prop({ required: true, default: false })
+  isVerified: boolean;
 }
 
 export const CompanyCarSchema = SchemaFactory.createForClass(CompanyCar);

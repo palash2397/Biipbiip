@@ -211,6 +211,9 @@ export const Msg = {
 
   // CAR
   CAR_NOT_AVAILABLE: 'Car is not available for rent',
+  CARS_FETCHED: 'Cars fetched successfully',
+  CAR_VERIFIED: 'Car verified successfully',
+  CAR_UNVERIFIED: 'Car unverified successfully',
 
   // DASHBOARD
   DASHBOARD_STATS_FETCHED: 'Dashboard stats fetched successfully',
