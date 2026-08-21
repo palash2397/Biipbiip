@@ -14,6 +14,10 @@ import {
   CarRentalBooking,
   CarRentalBookingDocument,
 } from '../car-rental/schema/car-rental-booking.schema';
+
+import { Rating, RatingDocument } from '../rating/schema/rating.schema';
+import { RatingFor } from 'src/common/enums/driver/rating-enum';
+
 import { RideStatus } from 'src/common/enums/ride/ride-enum';
 import { CarRentalBookingStatus } from 'src/common/enums/company/car-rental-booking-status.enum';
 
@@ -44,6 +48,9 @@ export class SuperAdminService {
     private readonly rideModel: Model<RideDocument>,
     @InjectModel(CarRentalBooking.name)
     private readonly carRentalBookingModel: Model<CarRentalBookingDocument>,
+
+    @InjectModel(Rating.name)
+    private readonly ratingModel: Model<RatingDocument>,
   ) {}
 
   async login(dto: SuperAdminLoginDto) {
@@ -259,10 +266,55 @@ export class SuperAdminService {
         );
       }
 
+      const rides = await this.rideModel
+        .find({ driver: driverId })
+        .populate('user', 'firstName lastName phoneNumber')
+        .sort({ createdAt: -1 })
+        .lean();
+
+      let totalDistance = 0;
+      let totalRevenue = 0;
+      let totalRides = 0;
+
+      const rideHistory = rides.map((ride: any) => {
+        if (ride.status === RideStatus.COMPLETED) {
+          totalRides++;
+          totalDistance += ride.distance || 0;
+          totalRevenue += ride.currentFare || 0;
+        }
+
+        const tip = 0;
+        const currentFare = ride.currentFare || 0;
+
+        return {
+          rideId: ride._id,
+          date: ride.createdAt,
+          customerName: ride.user
+            ? `${ride.user.firstName} ${ride.user.lastName}`
+            : 'Unknown',
+          phone: ride.user?.phoneNumber || 'Unknown',
+          pickup: ride.pickupAddress,
+          dropPoint: ride.destinationAddress,
+          distance: ride.distance || 0,
+          fare: currentFare,
+          tip: tip,
+          totalPrice: currentFare + tip,
+          status: ride.status,
+        };
+      });
+
+      const stats = {
+        totalRides,
+        totalDistance,
+        totalRevenue,
+      };
+
       return new ApiResponse(
         200,
         {
           driver,
+          stats,
+          rideHistory,
         },
         Msg.DRIVERS_FETCHED,
       );
@@ -400,13 +452,129 @@ export class SuperAdminService {
 
       return new ApiResponse(
         200,
-        { car },
-        car.isVerified
-          ? 'Car verified successfully'
-          : 'Car unverified successfully',
+        {},
+        car.isVerified ? Msg.CAR_VERIFIED : Msg.CAR_UNVERIFIED,
       );
     } catch (error) {
       console.log(`error while car verification`, error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
+
+  async verifiedDriverRidesStats() {
+    try {
+      const drivers = await this.driverModel
+        .find({ verificationStatus: VerificationStatus.APPROVED })
+        .populate('user', 'firstName lastName email phoneNumber')
+        .lean();
+
+      if (!drivers || drivers.length === 0) {
+        return new ApiResponse(404, {}, Msg.DATA_NOT_FOUND);
+      }
+
+      const driverIds = drivers.map((d: any) => d._id);
+
+      const rideStats = await this.rideModel.aggregate([
+        {
+          $match: {
+            driver: { $in: driverIds },
+            status: RideStatus.COMPLETED,
+          },
+        },
+        {
+          $group: {
+            _id: '$driver',
+            totalRides: { $sum: 1 },
+            totalDistance: { $sum: '$distance' },
+          },
+        },
+      ]);
+
+      const rideStatsMap = new Map();
+      rideStats.forEach((stat) => {
+        rideStatsMap.set(stat._id.toString(), {
+          totalRides: stat.totalRides,
+          totalDistance: stat.totalDistance,
+        });
+      });
+
+      const formattedDrivers = drivers.map((driver: any) => {
+        const stats = rideStatsMap.get(driver._id.toString()) || {
+          totalRides: 0,
+          totalDistance: 0,
+        };
+        return {
+          id: driver._id,
+          firstName: driver.user?.firstName || '',
+          lastName: driver.user?.lastName || '',
+          email: driver.user?.email || '',
+          phoneNumber: driver.user?.phoneNumber || '',
+          vehicleName: driver.vehicleName || '',
+          vehicleRegistrationNumber: driver.vehicleRegistrationNumber || '',
+          totalRides: stats.totalRides,
+          totalDistance: stats.totalDistance,
+        };
+      });
+
+      return new ApiResponse(
+        200,
+        { driverRides: formattedDrivers },
+        Msg.DATA_FETCHED,
+      );
+    } catch (error) {
+      console.log('error while fetching verified driver rides stats', error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
+  async getAllDriverRatings() {
+    try {
+      const ratings = await this.ratingModel
+        .find({ ratingFor: RatingFor.DRIVER })
+        .populate('givenBy', 'firstName lastName')
+        .populate('givenTo', 'firstName lastName')
+        .sort({ createdAt: -1 })
+        .lean();
+
+      if (!ratings || ratings.length === 0) {
+        return new ApiResponse(404, {}, Msg.DATA_NOT_FOUND);
+      }
+
+      const formattedRatings = ratings.map((rating: any, index: number) => ({
+        no: index + 1,
+        id: rating._id,
+        riderName: rating.givenBy
+          ? `${rating.givenBy.firstName} ${rating.givenBy.lastName}`
+          : 'Unknown',
+        driverName: rating.givenTo
+          ? `${rating.givenTo.firstName} ${rating.givenTo.lastName}`
+          : 'Unknown',
+        rating: rating.rating,
+        dateAndTime: rating.createdAt,
+        comments: rating.review || '-',
+      }));
+
+      return new ApiResponse(
+        200,
+        { ratings: formattedRatings },
+        Msg.DATA_FETCHED,
+      );
+    } catch (error) {
+      console.log('error while fetching driver ratings', error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
+
+  async deleteDriverRating(id: string) {
+    try {
+      const rating = await this.ratingModel.findByIdAndDelete(id);
+
+      if (!rating) {
+        return new ApiResponse(404, {}, Msg.DATA_NOT_FOUND);
+      }
+
+      return new ApiResponse(200, {}, 'Rating deleted successfully');
+    } catch (error) {
+      console.log('error while deleting driver rating', error);
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }

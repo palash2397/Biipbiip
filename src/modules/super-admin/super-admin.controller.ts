@@ -7,6 +7,7 @@ import {
   Get,
   Param,
   Patch,
+  Delete,
 } from '@nestjs/common';
 import { SuperAdminService } from './super-admin.service';
 import { SuperAdminLoginDto } from '../auth/dto/superadmin-login.dto';
@@ -81,7 +82,28 @@ export class SuperAdminController {
   @Patch('/car/:id/status')
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard, RoleGuard)
-  toggleCarVerification(@Param() dto: { id: string }) {
-    return this.superAdminService.carVerificaton(dto.id);
+  toggleCarVerification(@Param('id') id: string) {
+    return this.superAdminService.carVerificaton(id);
+  }
+
+  @Get('/driver-rides')
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  getDriverRidesStats() {
+    return this.superAdminService.verifiedDriverRidesStats();
+  }
+
+  @Get('/driver-ratings')
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  getDriverRatings() {
+    return this.superAdminService.getAllDriverRatings();
+  }
+
+  @Delete('/rating/:id')
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  deleteDriverRating(@Param('id') id: string) {
+    return this.superAdminService.deleteDriverRating(id);
   }
 }

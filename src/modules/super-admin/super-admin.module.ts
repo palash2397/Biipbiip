@@ -16,6 +16,8 @@ import {
   CarRentalBookingSchema,
 } from '../car-rental/schema/car-rental-booking.schema';
 
+import { Rating, RatingSchema } from '../rating/schema/rating.schema';
+
 @Module({
   controllers: [SuperAdminController],
   providers: [SuperAdminService],
@@ -28,6 +30,7 @@ import {
       { name: Company.name, schema: CompanySchema },
       { name: CompanyCar.name, schema: CompanyCarSchema },
       { name: CarRentalBooking.name, schema: CarRentalBookingSchema },
+      { name: Rating.name, schema: RatingSchema },
     ]),
   ],
 })
