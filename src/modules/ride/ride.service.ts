@@ -211,7 +211,7 @@ export class RideService {
         status: RideStatus.SEARCHING_DRIVER,
       });
 
-      const nearbyDrivers = await this.driverModel
+      const nearbyDriversRaw = await this.driverModel
         .find({
           isOnline: true,
           user: { $ne: userId },
@@ -229,6 +229,10 @@ export class RideService {
         })
         .populate('user')
         .lean();
+
+      const nearbyDrivers = nearbyDriversRaw.filter(
+        (driver: any) => driver.user && driver.user._id,
+      );
 
       // console.log('nearby drivers count ---------->', nearbyDrivers.length);
 
