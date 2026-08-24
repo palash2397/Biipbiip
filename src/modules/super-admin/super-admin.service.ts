@@ -578,4 +578,30 @@ export class SuperAdminService {
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }
+
+  async allUsers() {
+    try {
+      const users = await this.userModel
+        .find({ roles: { $in: [UserRole.USER] } })
+        .select('-password -otp -otpExpireAt')
+        .lean();
+
+      if (!users || users.length === 0) {
+        return new ApiResponse(404, {}, Msg.DATA_NOT_FOUND);
+      }
+
+      const baseUrl = process.env.BASE_URL;
+      const formattedUsers = users.map((user: any) => {
+        user.avatar = user.avatar
+          ? `${baseUrl}/api/v1/uploads/profile/${user.avatar}`
+          : `${process.env.DEFAULT_IMAGE}`;
+        return user;
+      });
+
+      return new ApiResponse(200, { users: formattedUsers }, Msg.DATA_FETCHED);
+    } catch (error) {
+      console.log('error while fetching users', error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
 }

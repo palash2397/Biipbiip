@@ -106,4 +106,11 @@ export class SuperAdminController {
   deleteDriverRating(@Param('id') id: string) {
     return this.superAdminService.deleteDriverRating(id);
   }
+
+  @Get('/users')
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  getAllUsers() {
+    return this.superAdminService.allUsers();
+  }
 }
