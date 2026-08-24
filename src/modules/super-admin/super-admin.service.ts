@@ -604,4 +604,46 @@ export class SuperAdminService {
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }
+
+  async allRentalBookings() {
+    try {
+      const bookings = await this.carRentalBookingModel
+        .find({})
+        .populate('user', 'firstName lastName phoneNumber email')
+        .populate('car', 'carName')
+        .sort({ createdAt: -1 })
+        .lean();
+
+      if (!bookings || bookings.length === 0) {
+        return new ApiResponse(404, {}, Msg.DATA_NOT_FOUND);
+      }
+
+      const formattedBookings = bookings.map((booking: any) => ({
+        id: booking._id,
+        customerName: booking.user
+          ? `${booking.user.firstName || ''} ${booking.user.lastName || ''}`.trim()
+          : 'Unknown',
+        carName: booking.car?.carName || 'Unknown',
+        phone: booking.user?.phoneNumber || 'Unknown',
+        email: booking.user?.email || 'Unknown',
+        days: booking.numberOfDays,
+        rentalDates: {
+          start: booking.pickupDate,
+          end: booking.returnDate,
+        },
+        amount: booking.totalAmount,
+        status: booking.status,
+        createdAt: booking.createdAt,
+      }));
+
+      return new ApiResponse(
+        200,
+        { rentalBookings: formattedBookings },
+        Msg.DATA_FETCHED,
+      );
+    } catch (error) {
+      console.log('error while fetching rental bookings', error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
 }

@@ -113,4 +113,11 @@ export class SuperAdminController {
   getAllUsers() {
     return this.superAdminService.allUsers();
   }
+
+  @Get('/rental-bookings')
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  getAllRentalBookings() {
+    return this.superAdminService.allRentalBookings();
+  }
 }
