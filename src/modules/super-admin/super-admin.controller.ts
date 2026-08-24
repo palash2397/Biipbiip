@@ -120,4 +120,11 @@ export class SuperAdminController {
   getAllRentalBookings() {
     return this.superAdminService.allRentalBookings();
   }
+
+  @Get('/taxi-bookings')
+  @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  getAllTaxiBookings() {
+    return this.superAdminService.allTaxiBookings();
+  }
 }

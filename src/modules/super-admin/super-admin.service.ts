@@ -646,4 +646,72 @@ export class SuperAdminService {
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
     }
   }
+
+  async allTaxiBookings() {
+    try {
+      const bookings = await this.rideModel
+        .find({})
+        .populate('user', 'firstName lastName phoneNumber')
+        .populate({
+          path: 'driver',
+          select: 'vehicleName vehicleRegistrationNumber user',
+          populate: {
+            path: 'user',
+            select: 'firstName lastName',
+          },
+        })
+        .sort({ createdAt: -1 })
+        .lean();
+
+      if (!bookings || bookings.length === 0) {
+        return new ApiResponse(404, {}, Msg.DATA_NOT_FOUND);
+      }
+
+      const formattedBookings = bookings.map((booking: any) => {
+        let driverName = 'Pending Assignment';
+        let carName = '-';
+        let carNo = '-';
+
+        if (booking.driver) {
+          const dUser = booking.driver.user;
+          driverName = dUser
+            ? `${dUser.firstName || ''} ${dUser.lastName || ''}`.trim()
+            : 'Unknown';
+          carName = booking.driver.vehicleName || 'Unknown';
+          carNo = booking.driver.vehicleRegistrationNumber || 'Unknown';
+        }
+
+        if (booking.status === RideStatus.CANCELLED) {
+          if (!booking.driver) {
+            driverName = 'Cancelled';
+          }
+        }
+
+        return {
+          bookingId: booking._id,
+          customerName: booking.user
+            ? `${booking.user.firstName || ''} ${booking.user.lastName || ''}`.trim()
+            : 'Unknown',
+          phone: booking.user?.phoneNumber || 'Unknown',
+          driverName,
+          carName,
+          carNo,
+          pickup: booking.pickupAddress,
+          dropPoint: booking.destinationAddress,
+          fare: booking.currentFare,
+          status: booking.status,
+          createdAt: booking.createdAt,
+        };
+      });
+
+      return new ApiResponse(
+        200,
+        { taxiBookings: formattedBookings },
+        Msg.DATA_FETCHED,
+      );
+    } catch (error) {
+      console.log('error while fetching taxi bookings', error);
+      return new ApiResponse(500, {}, Msg.SERVER_ERROR);
+    }
+  }
 }
