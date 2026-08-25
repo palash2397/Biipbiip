@@ -221,6 +221,7 @@ export const Msg = {
   // Coupon
   COUPON_CREATED: 'Coupon created successfully',
   COUPON_NOT_FOUND: 'Coupon not found',
+  COUPONS_NOT_FOUND: 'Coupons not found',
   COUPON_UPDATED: 'Coupon updated successfully',
   COUPON_DELETED: 'Coupon deleted successfully',
   COUPON_FETCHED: 'Coupon fetched successfully',
@@ -230,4 +231,7 @@ export const Msg = {
   COUPON_NOT_ACTIVE: 'Coupon is not active',
   COUPON_ALREADY_USED: 'Coupon already used',
   COUPON_INVALID: 'Invalid coupon code',
+  COUPON_STATS_FETCHED: 'Coupon stats fetched successfully',
+  COUPON_INACTIVE: 'Coupon is currently inactive',
+  COUPON_APPLIED: 'Coupon applied successfully',
 };

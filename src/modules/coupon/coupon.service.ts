@@ -19,13 +19,12 @@ export class CouponService {
 
   async createCoupon(dto: CreateCouponDto) {
     try {
-      // Check if coupon code already exists
       const existing = await this.couponModel.findOne({
         couponCode: dto.couponCode.toUpperCase(),
       });
 
       if (existing) {
-        return new ApiResponse(400, {}, 'Coupon code already exists');
+        return new ApiResponse(400, {}, Msg.COUPON_ALREADY_EXISTS);
       }
 
       const coupon = await this.couponModel.create({
@@ -33,7 +32,7 @@ export class CouponService {
         couponCode: dto.couponCode.toUpperCase(),
       });
 
-      return new ApiResponse(201, { coupon }, 'Coupon created successfully');
+      return new ApiResponse(201, { coupon }, Msg.COUPON_CREATED);
     } catch (error) {
       this.logger.error('Error creating coupon', error);
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
@@ -48,7 +47,7 @@ export class CouponService {
         .lean();
 
       if (!coupons || coupons.length === 0) {
-        return new ApiResponse(404, {}, 'Coupons not found');
+        return new ApiResponse(404, {}, Msg.COUPONS_NOT_FOUND);
       }
 
       const formattedCoupons = coupons.map((c) => {
@@ -60,7 +59,7 @@ export class CouponService {
       return new ApiResponse(
         200,
         { coupons: formattedCoupons },
-        Msg.DATA_FETCHED,
+        Msg.COUPON_FETCHED,
       );
     } catch (error) {
       this.logger.error('Error fetching coupons', error);
@@ -96,7 +95,7 @@ export class CouponService {
             expiredOrInactive,
           },
         },
-        Msg.DATA_FETCHED,
+        Msg.COUPON_STATS_FETCHED,
       );
     } catch (error) {
       this.logger.error('Error fetching coupon stats', error);
@@ -104,19 +103,21 @@ export class CouponService {
     }
   }
 
-  async toggleStatus(id: string, status: CouponStatus) {
+  async toggleStatus(id: string) {
     try {
-      const coupon = await this.couponModel.findByIdAndUpdate(
-        id,
-        { status },
-        { new: true },
-      );
+      const coupon = await this.couponModel.findById(id);
 
       if (!coupon) {
-        return new ApiResponse(404, {}, Msg.DATA_NOT_FOUND);
+        return new ApiResponse(404, {}, Msg.COUPON_NOT_FOUND);
       }
 
-      return new ApiResponse(200, { coupon }, 'Coupon status updated');
+      coupon.status =
+        coupon.status === CouponStatus.ACTIVE
+          ? CouponStatus.INACTIVE
+          : CouponStatus.ACTIVE;
+      await coupon.save();
+
+      return new ApiResponse(200, { coupon }, Msg.COUPON_UPDATED);
     } catch (error) {
       this.logger.error('Error updating coupon status', error);
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
@@ -128,10 +129,10 @@ export class CouponService {
       const coupon = await this.couponModel.findByIdAndDelete(id);
 
       if (!coupon) {
-        return new ApiResponse(404, {}, Msg.DATA_NOT_FOUND);
+        return new ApiResponse(404, {}, Msg.COUPON_NOT_FOUND);
       }
 
-      return new ApiResponse(200, {}, 'Coupon deleted successfully');
+      return new ApiResponse(200, {}, Msg.COUPON_DELETED);
     } catch (error) {
       this.logger.error('Error deleting coupon', error);
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);
@@ -145,21 +146,21 @@ export class CouponService {
       });
 
       if (!coupon) {
-        return new ApiResponse(404, {}, 'Invalid coupon code');
+        return new ApiResponse(404, {}, Msg.COUPON_NOT_FOUND);
       }
 
       if (coupon.status !== CouponStatus.ACTIVE) {
-        return new ApiResponse(400, {}, 'This coupon is currently inactive');
+        return new ApiResponse(400, {}, Msg.COUPON_NOT_ACTIVE);
       }
 
       if (new Date(coupon.expirationDate) < new Date()) {
-        return new ApiResponse(400, {}, 'This coupon has expired');
+        return new ApiResponse(400, {}, Msg.COUPON_EXPIRED);
       }
 
       // In a full implementation, we might increment usedCount when the ride/rental is booked.
       // For now, we just validate and return the benefit details.
 
-      return new ApiResponse(200, { coupon }, 'Coupon applied successfully');
+      return new ApiResponse(200, { coupon }, Msg.COUPON_APPLIED);
     } catch (error) {
       this.logger.error('Error applying coupon', error);
       return new ApiResponse(500, {}, Msg.SERVER_ERROR);

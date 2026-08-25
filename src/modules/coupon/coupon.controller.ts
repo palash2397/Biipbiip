@@ -52,8 +52,8 @@ export class CouponController {
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(UserRole.SUPERADMIN)
-  toggleStatus(@Param('id') id: string, @Body('status') status: CouponStatus) {
-    return this.couponService.toggleStatus(id, status);
+  toggleStatus(@Param('id') id: string) {
+    return this.couponService.toggleStatus(id);
   }
 
   @Delete(':id')
