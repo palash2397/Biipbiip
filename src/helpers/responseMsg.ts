@@ -217,4 +217,17 @@ export const Msg = {
 
   // DASHBOARD
   DASHBOARD_STATS_FETCHED: 'Dashboard stats fetched successfully',
+
+  // Coupon
+  COUPON_CREATED: 'Coupon created successfully',
+  COUPON_NOT_FOUND: 'Coupon not found',
+  COUPON_UPDATED: 'Coupon updated successfully',
+  COUPON_DELETED: 'Coupon deleted successfully',
+  COUPON_FETCHED: 'Coupon fetched successfully',
+  COUPON_ALREADY_EXISTS: 'Coupon already exists',
+  COUPON_ALREADY_APPLIED: 'Coupon already applied',
+  COUPON_EXPIRED: 'Coupon has expired',
+  COUPON_NOT_ACTIVE: 'Coupon is not active',
+  COUPON_ALREADY_USED: 'Coupon already used',
+  COUPON_INVALID: 'Invalid coupon code',
 };
