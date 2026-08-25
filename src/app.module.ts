@@ -19,6 +19,7 @@ import { SuperAdminModule } from './modules/super-admin/super-admin.module';
 import { CompanyModule } from './modules/company/company.module';
 import { CompanyCarsModule } from './modules/company-cars/company-cars.module';
 import { CarRentalModule } from './modules/car-rental/car-rental.module';
+import { CouponModule } from './modules/coupon/coupon.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { CarRentalModule } from './modules/car-rental/car-rental.module';
     CompanyModule,
     CompanyCarsModule,
     CarRentalModule,
+    CouponModule,
   ],
   controllers: [AppController],
   providers: [],
